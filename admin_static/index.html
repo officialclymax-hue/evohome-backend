@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>EvoHome Admin</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="/admin/styles.css">
+</head>
+<body>
+  <div id="app">
+    <h1>EvoHome Admin Dashboard</h1>
+    <div id="login" class="card">
+      <h2>Login</h2>
+      <input id="email" placeholder="Email" type="email" />
+      <input id="password" placeholder="Password" type="password" />
+      <button id="btn-login">Login</button>
+      <div id="login-status"></div>
+    </div>
+
+    <div id="main" style="display:none">
+      <div class="toolbar">
+        <button id="btn-logout">Logout</button>
+        <span id="token-display"></span>
+      </div>
+
+      <div class="tabs">
+        <button class="tab-btn" data-tab="services">Services</button>
+        <button class="tab-btn" data-tab="gallery">Gallery</button>
+        <button class="tab-btn" data-tab="blogs">Blogs</button>
+      </div>
+
+      <div id="content-area"></div>
+    </div>
+  </div>
+  <script src="/admin/app.js"></script>
+</body>
+</html>
