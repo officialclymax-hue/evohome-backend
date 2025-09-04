@@ -1,0 +1,59 @@
+{
+  "file": "footer.json",
+  "quickActions": {
+    "title": "Quick Actions",
+    "actions": [
+      { "label": "Call: 0333 004 0195", "href": "tel:03330040195" },
+      { "label": "office@evohomeimprovements.co.uk", "href": "mailto:office@evohomeimprovements.co.uk" }
+    ],
+    "images": []
+  },
+  "company": {
+    "name": "EvoHome Improvements Ltd",
+    "companyNumber": "14881322",
+    "tagline": "Founded on 30+ years industry expertise",
+    "region": "Southern England",
+    "rating": "4.9/5 Google Rating",
+    "images": []
+  },
+  "quickLinks": [
+    { "label": "Home", "href": "/" },
+    { "label": "Request Quote", "href": "/request-quote" },
+    { "label": "Services", "href": "/services" },
+    { "label": "About", "href": "/about" },
+    { "label": "Blog", "href": "/blog" },
+    { "label": "Join EvoHome", "href": "/join-evohome" }
+  ],
+  "popularServices": [
+    { "label": "Solar Power", "href": "/services/solar-power" },
+    { "label": "Air Source Heat Pump", "href": "/services/air-source-heat-pump" },
+    { "label": "Ground Source Heat Pump", "href": "/services/ground-source-heat-pump" },
+    { "label": "Windows & Doors", "href": "/services/windows-doors" },
+    { "label": "Roofing & Roofline", "href": "/services/roofing" },
+    { "label": "Insulation", "href": "/services/insulation" },
+    { "label": "Driveways", "href": "/services/driveways" },
+    { "label": "Kitchens", "href": "/services/kitchens" }
+  ],
+  "contact": {
+    "phone": "0333 004 0195",
+    "email": "office@evohomeimprovements.co.uk",
+    "addressRegion": "Southern England",
+    "images": []
+  },
+  "coverageAreas": {
+    "primary": ["Hampshire", "Surrey", "Sussex", "Dorset", "Wiltshire"],
+    "note": "+ Remote consultations nationwide",
+    "images": []
+  },
+  "socials": [
+    { "platform": "Facebook", "href": "#" },
+    { "platform": "Instagram", "href": "#" },
+    { "platform": "Twitter", "href": "#" }
+  ],
+  "legalLinks": [
+    { "label": "Privacy Policy", "href": "/privacy-policy" },
+    { "label": "Terms of Service", "href": "/terms-of-service" },
+    { "label": "Cookie Policy", "href": "/cookie-policy" }
+  ],
+  "copyright": "© {{year}} EvoHome Improvements Ltd. All rights reserved."
+}
