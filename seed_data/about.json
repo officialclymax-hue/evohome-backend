@@ -1,0 +1,39 @@
+{
+  "file": "about.json",
+  "hero": {
+    "title": "About EvoHome Improvements",
+    "subtitle": "The Smarter Way to Improve Your Home",
+    "images": []
+  },
+  "intro": {
+    "heading": "Who We Are",
+    "body": "EvoHome Improvements Ltd connects homeowners with vetted specialists and provides real project oversight from quote to completion.",
+    "images": []
+  },
+  "mission": {
+    "title": "Our Mission",
+    "points": [
+      "Protect homeowners with 100% support and oversight",
+      "Support skilled tradespeople and restore industry pride",
+      "Deliver honest, impartial advice without sales pressure"
+    ],
+    "images": []
+  },
+  "facts": [
+    { "label": "Company Number", "value": "14881322" },
+    { "label": "Years of Experience", "value": "30+ years" },
+    { "label": "Google Rating", "value": "4.9/5" }
+  ],
+  "values": [
+    "Vetting & verification",
+    "Quality workmanship",
+    "Transparency & fairness",
+    "Customer-first support"
+  ],
+  "cta": {
+    "heading": "Get Started Today",
+    "primaryCta": { "label": "Request Free Quote", "href": "/request-quote" },
+    "secondaryCta": { "label": "Call: 0333 004 0195", "href": "tel:03330040195" },
+    "images": []
+  }
+}
