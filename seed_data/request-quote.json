@@ -1,0 +1,25 @@
+{
+  "file": "request-quote.json",
+  "hero": {
+    "title": "Request a Home Improvement Quote",
+    "subtitle": "Looking for home improvement quotes, ideas or information?",
+    "areas": "Hampshire – Surrey – Sussex – Dorset & Wiltshire",
+    "trustIndicators": ["No Obligation", "24 Hour Response", "100% Protected"],
+    "images": []
+  },
+  "trustPoints": [
+    "Vetted & Verified Professionals",
+    "Project Oversight",
+    "Real Support, Not Just a Platform",
+    "Impartial Expert Advice",
+    "100% Homeowner Protection",
+    "Quality Guaranteed"
+  ],
+  "process": [
+    { "step": "01", "title": "Free Consultation", "time": "Within 24 hours", "description": "Remote or in-home consultation; impartial guidance.", "images": [] },
+    { "step": "02", "title": "Design & Planning", "time": "24-48 hours", "description": "Measurements, materials and layout tailored to you.", "images": [] },
+    { "step": "03", "title": "Quote Comparison", "time": "48-72 hours", "description": "Compare up to 5 competitive quotes from vetted pros.", "images": [] },
+    { "step": "04", "title": "Protected Installation", "time": "As scheduled", "description": "Full oversight, quality checks and protection.", "images": [] }
+  ],
+  "images": []
+}
