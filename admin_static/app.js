@@ -1,206 +1,102 @@
-const API_BASE = window.location.origin; // same origin when served from the backend
-let token = localStorage.getItem("evo_token") || null;
+// admin_static/app.js
+const API_BASE = window.location.origin; // same origin as backend
+let token = null;
+const collections = ["homepage","header","about","services","blogs","gallery","contact","footer","coverage","seo","request-quote","forms","chatbot","floating-buttons"];
 
-function setToken(t){
-  token = t;
-  if(t) localStorage.setItem("evo_token", t);
-  else localStorage.removeItem("evo_token");
-  document.getElementById("token-display").textContent = token ? "Logged in" : "";
+function $(id){return document.getElementById(id)}
+async function api(path, options={}){
+  const headers = options.headers || {};
+  if(token) headers["Authorization"]="Bearer "+token;
+  const res = await fetch(API_BASE + path, {...options, headers});
+  if(res.status===401) {
+    alert("Not authorized. Please login again.")
+    logout();
+    throw new Error("Unauthorized");
+  }
+  return res;
 }
 
-async function postJSON(path, body){
-  const res = await fetch(API_BASE + path, {
-    method:"POST",
-    headers:{
-      "Content-Type":"application/json",
-      ...(token ? {"Authorization":"Bearer " + token} : {})
-    },
-    body: JSON.stringify(body)
+async function login(){
+  const email = $("email").value;
+  const password = $("password").value;
+  const res = await fetch(API_BASE+"/admin/login", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({email, password})
   });
-  return res.json();
-}
-
-async function fetchJSON(path, opts={}){
-  const headers = opts.headers || {};
-  if(token) headers["Authorization"]="Bearer " + token;
-  const res = await fetch(API_BASE + path, {...opts, headers});
-  const txt = await res.text();
-  try{ return JSON.parse(txt); } catch(e){ return txt; }
-}
-
-document.getElementById("btn-login").addEventListener("click", async ()=>{
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value.trim();
-  if(!email || !password){ document.getElementById("login-status").textContent = "Enter both fields"; return; }
-  const data = await postJSON("/admin/login", {email, password});
-  if(data.access_token){ setToken(data.access_token); document.getElementById("login").style.display="none"; document.getElementById("main").style.display="block"; loadTab("services"); }
-  else { document.getElementById("login-status").textContent = data.detail || "Login failed"; }
-});
-
-document.getElementById("btn-logout").addEventListener("click", ()=>{ setToken(null); document.getElementById("main").style.display="none"; document.getElementById("login").style.display="block"; });
-
-document.querySelectorAll(".tab-btn").forEach(btn=>btn.addEventListener("click", ()=>loadTab(btn.dataset.tab)));
-
-function el(tag, attrs={}, ...children){
-  const e = document.createElement(tag);
-  Object.assign(e, attrs);
-  for(const c of children) if(typeof c === "string") e.appendChild(document.createTextNode(c)); else if(c) e.appendChild(c);
-  return e;
-}
-
-async function loadTab(tab){
-  const area = document.getElementById("content-area");
-  area.innerHTML = "";
-  if(tab === "services"){
-    area.appendChild(el("h2", {}, "Services"));
-    const create = el("div",{className:"form-row"});
-    const title = el("input",{placeholder:"Title", id:"svc-title"});
-    const desc = el("textarea",{placeholder:"Description", id:"svc-desc"});
-    const img = el("input",{type:"file", id:"svc-image"});
-    const btn = el("button",{}, "Create Service");
-    btn.addEventListener("click", async ()=>{
-      const fd = new FormData();
-      fd.append("title", document.getElementById("svc-title").value);
-      fd.append("description", document.getElementById("svc-desc").value);
-      const file = document.getElementById("svc-image").files[0];
-      if(file) fd.append("image", file);
-      const res = await fetch(API_BASE + "/services", {method:"POST", body:fd, headers: token ? {"Authorization":"Bearer " + token} : {}});
-      await res.json();
-      loadTab("services");
-    });
-    create.appendChild(title); create.appendChild(desc); create.appendChild(img); create.appendChild(btn);
-    area.appendChild(create);
-
-    const list = el("div",{});
-    const items = await fetchJSON("/services");
-    (items || []).forEach(it=>{
-      const row = el("div",{className:"list-item"});
-      const imgEl = el("img",{src: it.image_url || "", className:"thumb"});
-      const content = el("div",{}, el("strong",{}, it.title), el("div",{}, it.description || ""));
-      const editBtn = el("button",{}, "Edit");
-      editBtn.addEventListener("click", ()=> editService(it));
-      const delBtn = el("button",{}, "Delete");
-      delBtn.addEventListener("click", async ()=>{ if(confirm("Delete?")){ await fetch(API_BASE + "/services/" + it.id, {method:"DELETE", headers: token ? {"Authorization":"Bearer " + token} : {}}); loadTab("services"); } });
-      row.appendChild(imgEl); row.appendChild(content); row.appendChild(editBtn); row.appendChild(delBtn);
-      list.appendChild(row);
-    });
-    area.appendChild(list);
+  if(!res.ok){
+    $("loginMsg").innerText = "Login failed";
+    return;
   }
+  const data = await res.json();
+  token = data.access_token;
+  $("login").style.display="none";
+  $("main").style.display="";
+  initCollections();
+}
 
-  if(tab === "gallery"){
-    area.appendChild(el("h2", {}, "Gallery"));
-    const create = el("div",{className:"form-row"});
-    const title = el("input",{placeholder:"Title", id:"gal-title"});
-    const desc = el("textarea",{placeholder:"Description", id:"gal-desc"});
-    const img = el("input",{type:"file", id:"gal-image"});
-    const btn = el("button",{}, "Create Image");
-    btn.addEventListener("click", async ()=>{
-      const fd = new FormData();
-      fd.append("title", document.getElementById("gal-title").value);
-      fd.append("description", document.getElementById("gal-desc").value);
-      const file = document.getElementById("gal-image").files[0];
-      if(file) fd.append("image", file);
-      const res = await fetch(API_BASE + "/gallery", {method:"POST", body:fd, headers: token ? {"Authorization":"Bearer " + token} : {}});
-      await res.json();
-      loadTab("gallery");
-    });
-    create.appendChild(title); create.appendChild(desc); create.appendChild(img); create.appendChild(btn);
-    area.appendChild(create);
+function logout(){
+  token = null;
+  $("main").style.display="none";
+  $("login").style.display="";
+}
 
-    const list = el("div",{});
-    const items = await fetchJSON("/gallery");
-    (items || []).forEach(it=>{
-      const row = el("div",{className:"list-item"});
-      const imgEl = el("img",{src: it.image_url || "", className:"thumb"});
-      const content = el("div",{}, el("strong",{}, it.title), el("div",{}, it.description || ""));
-      const editBtn = el("button",{}, "Edit");
-      editBtn.addEventListener("click", ()=> editGallery(it));
-      const delBtn = el("button",{}, "Delete");
-      delBtn.addEventListener("click", async ()=>{ if(confirm("Delete?")){ await fetch(API_BASE + "/gallery/" + it.id, {method:"DELETE", headers: token ? {"Authorization":"Bearer " + token} : {}}); loadTab("gallery"); } });
-      row.appendChild(imgEl); row.appendChild(content); row.appendChild(editBtn); row.appendChild(delBtn);
-      list.appendChild(row);
-    });
-    area.appendChild(list);
-  }
+function initCollections(){
+  const ul = $("collections");
+  ul.innerHTML="";
+  collections.forEach(c=>{
+    const li = document.createElement("li");
+    li.innerText = c;
+    li.onclick = ()=>loadCollection(c);
+    ul.appendChild(li);
+  });
+}
 
-  if(tab === "blogs"){
-    area.appendChild(el("h2", {}, "Blogs"));
-    const create = el("div",{className:"form-row"});
-    const title = el("input",{placeholder:"Title", id:"blog-title"});
-    const desc = el("textarea",{placeholder:"Description", id:"blog-desc"});
-    const content = el("textarea",{placeholder:"Content", id:"blog-content"});
-    const img = el("input",{type:"file", id:"blog-image"});
-    const btn = el("button",{}, "Create Blog");
-    btn.addEventListener("click", async ()=>{
-      const fd = new FormData();
-      fd.append("title", document.getElementById("blog-title").value);
-      fd.append("description", document.getElementById("blog-desc").value);
-      fd.append("content", document.getElementById("blog-content").value);
-      const file = document.getElementById("blog-image").files[0];
-      if(file) fd.append("image", file);
-      const res = await fetch(API_BASE + "/blogs", {method:"POST", body:fd, headers: token ? {"Authorization":"Bearer " + token} : {}});
-      await res.json();
-      loadTab("blogs");
-    });
-    create.appendChild(title); create.appendChild(desc); create.appendChild(content); create.appendChild(img); create.appendChild(btn);
-    area.appendChild(create);
-
-    const list = el("div",{});
-    const items = await fetchJSON("/blogs");
-    (items || []).forEach(it=>{
-      const row = el("div",{className:"list-item"});
-      const imgEl = el("img",{src: it.image_url || "", className:"thumb"});
-      const content = el("div",{}, el("strong",{}, it.title), el("div",{}, it.description || ""), el("div",{}, it.content ? it.content.substring(0,140) : ""));
-      const editBtn = el("button",{}, "Edit");
-      editBtn.addEventListener("click", ()=> editBlog(it));
-      const delBtn = el("button",{}, "Delete");
-      delBtn.addEventListener("click", async ()=>{ if(confirm("Delete?")){ await fetch(API_BASE + "/blogs/" + it.id, {method:"DELETE", headers: token ? {"Authorization":"Bearer " + token} : {}}); loadTab("blogs"); } });
-      row.appendChild(imgEl); row.appendChild(content); row.appendChild(editBtn); row.appendChild(delBtn);
-      list.appendChild(row);
-    });
-    area.appendChild(list);
+async function loadCollection(k){
+  try{
+    const res = await api("/content/"+k);
+    if(!res.ok){
+      const text = await res.text();
+      $("editor").value = "// Not found. Use Save to create content.\n"+text;
+      $("colTitle").innerText = k;
+      return;
+    }
+    const data = await res.json();
+    $("editor").value = JSON.stringify(data, null, 2);
+    $("colTitle").innerText = k;
+  }catch(e){
+    console.error(e);
+    $("editor").value = "// Error loading collection";
   }
 }
 
-async function editService(it){
-  const title = prompt("Title", it.title) || it.title;
-  const desc = prompt("Description", it.description || "") || it.description;
-  const fd = new FormData();
-  fd.append("title", title);
-  fd.append("description", desc);
-  const res = await fetch(API_BASE + "/services/" + it.id, {method:"PUT", body:fd, headers: token ? {"Authorization":"Bearer " + token} : {}});
-  await res.json();
-  loadTab("services");
+async function saveCollection(){
+  const key = $("colTitle").innerText;
+  if(!key) return alert("Select a collection first");
+  let parsed;
+  try{ parsed = JSON.parse($("editor").value); }catch(e){ return alert("Invalid JSON: " + e.message) }
+  const res = await api("/content/"+key, {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify(parsed)
+  });
+  if(!res.ok) alert("Save failed: " + res.status);
+  else alert("Saved!");
 }
 
-async function editGallery(it){
-  const title = prompt("Title", it.title) || it.title;
-  const desc = prompt("Description", it.description || "") || it.description;
-  const fd = new FormData();
-  fd.append("title", title);
-  fd.append("description", desc);
-  const res = await fetch(API_BASE + "/gallery/" + it.id, {method:"PUT", body:fd, headers: token ? {"Authorization":"Bearer " + token} : {}});
-  await res.json();
-  loadTab("gallery");
+async function runSeed(){
+  const res = await api("/seed", {method:"POST"});
+  if(!res.ok) alert("Seed failed: " + res.status);
+  else {
+    const j = await res.json();
+    alert("Seeded: " + JSON.stringify(j));
+  }
 }
 
-async function editBlog(it){
-  const title = prompt("Title", it.title) || it.title;
-  const desc = prompt("Description", it.description || "") || it.description;
-  const content = prompt("Content", it.content || "") || it.content;
-  const fd = new FormData();
-  fd.append("title", title);
-  fd.append("description", desc);
-  fd.append("content", content);
-  const res = await fetch(API_BASE + "/blogs/" + it.id, {method:"PUT", body:fd, headers: token ? {"Authorization":"Bearer " + token} : {}});
-  await res.json();
-  loadTab("blogs");
-}
-
-// Auto-login if token exists
-if(token){
-  document.getElementById("login").style.display="none";
-  document.getElementById("main").style.display="block";
-  document.getElementById("token-display").textContent = "Logged in";
-  loadTab("services");
+window.onload = ()=>{
+  $("btnLogin").onclick = login;
+  $("btnLogout").onclick = logout;
+  $("btnSave").onclick = saveCollection;
+  $("btnRefresh").onclick = ()=>initCollections();
+  $("btnSeed").onclick = runSeed;
 }
