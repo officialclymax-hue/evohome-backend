@@ -1,0 +1,76 @@
+{
+  "file": "blogs.json",
+  "listing": {
+    "hero": {
+      "title": "EvoHome Blog",
+      "subtitle": "Guides and insights on smart home improvements",
+      "images": []
+    },
+    "posts": [
+      {
+        "slug": "complete-guide-solar-power-uk-homes-2025",
+        "title": "Complete Guide to Solar Power for UK Homes (2025)",
+        "image": "https://images.pexels.com/photos/9875441/pexels-photo-9875441.jpeg",
+        "excerpt": "Everything you need to know before installing solar – savings, payback, grants, and more.",
+        "date": "2025-01-05",
+        "author": "EvoHome Team",
+        "images": ["https://images.pexels.com/photos/9875441/pexels-photo-9875441.jpeg"]
+      },
+      {
+        "slug": "uk-heat-pump-grant-7500-everything-you-need",
+        "title": "UK Heat Pump Grant (£7,500): Everything You Need to Know",
+        "image": "https://images.pexels.com/photos/9875419/pexels-photo-9875419.jpeg",
+        "excerpt": "Eligibility, application process and practical tips for homeowners.",
+        "date": "2025-02-01",
+        "author": "EvoHome Team",
+        "images": ["https://images.pexels.com/photos/9875419/pexels-photo-9875419.jpeg"]
+      },
+      {
+        "slug": "windows-buyers-guide-choosing-best-home",
+        "title": "Windows Buyer’s Guide: Choosing the Best for Your Home",
+        "image": "https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg",
+        "excerpt": "UPVC, aluminium, glazing ratings and what to look for.",
+        "date": "2025-02-18",
+        "author": "EvoHome Team",
+        "images": ["https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg"]
+      },
+      {
+        "slug": "future-home-heating-heat-pumps-explained",
+        "title": "The Future of Home Heating: Heat Pumps Explained",
+        "image": "https://images.pexels.com/photos/9875419/pexels-photo-9875419.jpeg",
+        "excerpt": "ASHP vs GSHP, efficiency and running costs.",
+        "date": "2025-03-02",
+        "author": "EvoHome Team",
+        "images": ["https://images.pexels.com/photos/9875419/pexels-photo-9875419.jpeg"]
+      }
+    ]
+  },
+  "posts": [
+    {
+      "slug": "complete-guide-solar-power-uk-homes-2025",
+      "title": "Complete Guide to Solar Power for UK Homes (2025)",
+      "hero": {
+        "images": ["https://images.pexels.com/photos/9875441/pexels-photo-9875441.jpeg"],
+        "overlayTitle": "Solar Power Guide 2025"
+      },
+      "contentHtml": "<h2>Introduction</h2><p>…</p><h3>How Solar Works</h3><p>…</p><h3>Costs & Savings</h3><p>…</p>",
+      "relatedArticles": [
+        {
+          "title": "Top 10 Energy-Saving Home Improvements",
+          "slug": "top-10-energy-saving-home-improvements",
+          "images": ["https://images.pexels.com/photos/5691659/pexels-photo-5691659.jpeg"]
+        },
+        {
+          "title": "The Future of Home Heating: Heat Pumps Explained",
+          "slug": "future-home-heating-heat-pumps-explained",
+          "images": ["https://images.pexels.com/photos/9875419/pexels-photo-9875419.jpeg"]
+        },
+        {
+          "title": "Windows Buyer's Guide: Choosing the Best for Your Home",
+          "slug": "windows-buyers-guide-choosing-best-home",
+          "images": ["https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg"]
+        }
+      ]
+    }
+  ]
+}
