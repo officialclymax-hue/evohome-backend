@@ -1,0 +1,23 @@
+{
+  "file": "header.json",
+  "logo": {
+    "images": ["/8350661c-0317-4d61-939e-72d9dba47c95.JPG"],
+    "alt": "EvoHome logo"
+  },
+  "brand": "EvoHome Improvements",
+  "navigation": [
+    { "label": "Home", "href": "/" },
+    { "label": "Services", "href": "/services" },
+    { "label": "Request Quote", "href": "/request-quote", "isPrimary": true },
+    { "label": "Join EvoHome", "href": "/join-evohome" },
+    { "label": "Blog", "href": "/blog" },
+    { "label": "Gallery", "href": "/gallery" },
+    { "label": "About", "href": "/about" },
+    { "label": "Contact", "href": "/contact" }
+  ],
+  "phone": "0333 004 0195",
+  "ctaButtons": [
+    { "label": "Request Free Quote", "href": "/request-quote" },
+    { "label": "Call", "href": "tel:03330040195" }
+  ]
+}
