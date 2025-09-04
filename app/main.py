@@ -1,433 +1,552 @@
+# app/main.py
+# EvoHome FastAPI backend (single-file main server)
+# - CRUD for services, blogs, gallery
+# - Generic content drawers (homepage, header, footer, seo, request-quote, chatbot, forms, coverage)
+# - /lead endpoint that saves lead and attempts to send email to office@evohomeimprovements.co.uk
+# - /admin/login returns JWT (basic)
+# - image upload: tries Supabase storage if SUPABASE_* env vars are set; otherwise saves to /uploads
+# - simple in-memory rate limiter for POST endpoints (not distributed; okay for demo)
+# - docs available at /docs
+
 import os
-import logging
+import time
+import json
+import pathlib
 import smtplib
-import ssl
-from email.message import EmailMessage
+import traceback
 from datetime import datetime, timedelta
-from typing import Optional, List
-from uuid import uuid4
+from typing import List, Optional, Dict
 
-from fastapi import FastAPI, File, UploadFile, Form, Depends, HTTPException, status, Request
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
-from pydantic import BaseModel, EmailStr, constr
-from dotenv import load_dotenv
-
-from slowapi import Limiter
-from slowapi.util import get_remote_address
-from slowapi.errors import RateLimitExceeded
-
-from jose import jwt, JWTError
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from fastapi.staticfiles import StaticFiles
-
-from supabase import create_client, Client
-
-# load env
-load_dotenv()
-
-# logging
-LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
-logging.basicConfig(
-    level=LOG_LEVEL,
-    format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
+from fastapi import (
+    FastAPI, HTTPException, Depends, UploadFile, File, Form, Request
 )
-logger = logging.getLogger("evohome")
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel, EmailStr
+from jose import jwt
+from jose.exceptions import JWTError
+from sqlalchemy import (
+    create_engine, Column, Integer, String, Text, JSON as SAJSON, DateTime
+)
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+import requests
 
-# env vars
+# ---------------------------
+# Environment / config
+# ---------------------------
+FRONTEND_ORIGINS = os.getenv("FRONTEND_ORIGINS", "https://evohome-improvements-gm0u.bolt.host")
+# allow multiple origins comma separated
+ALLOWED_ORIGINS = [s.strip() for s in FRONTEND_ORIGINS.split(",") if s.strip()]
+
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./local.db")
 SUPABASE_URL = os.getenv("SUPABASE_URL", "")
-SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_KEY", "")
-SUPABASE_ANON_KEY = os.getenv("SUPABASE_ANON_KEY", "")
-SUPABASE_STORAGE_BUCKET = os.getenv("SUPABASE_STORAGE_BUCKET", "evohome-media")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY", "")
+SUPABASE_BUCKET = os.getenv("SUPABASE_BUCKET", "public")
+ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "admin@example.com")
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "changeme")  # replace in Render settings!
+JWT_SECRET = os.getenv("JWT_SECRET", "replace-me-with-a-strong-secret")
+JWT_ALGO = "HS256"
+JWT_EXPIRE_MINUTES = int(os.getenv("JWT_EXPIRE_MINUTES", "240"))
 
-FRONTEND_ORIGIN = os.getenv("FRONTEND_ORIGIN", "https://evohome-improvements-gm0u.bolt.host")
-
-ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "")
-ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "")
-
-JWT_SECRET = os.getenv("JWT_SECRET", "change-me")
-JWT_ALG = "HS256"
-JWT_EXPIRES_MINUTES = int(os.getenv("JWT_EXPIRES_MINUTES", "120"))
-
-RATE_LIMIT_POST = os.getenv("RATE_LIMIT_POST", "10/minute")
-LEAD_NOTIFY_EMAIL = os.getenv("LEAD_NOTIFY_EMAIL", "office@evohomeimprovements.co.uk")
-
-# SMTP
 SMTP_HOST = os.getenv("SMTP_HOST", "")
-SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
+SMTP_PORT = int(os.getenv("SMTP_PORT", "587") or 587)
 SMTP_USER = os.getenv("SMTP_USER", "")
 SMTP_PASS = os.getenv("SMTP_PASS", "")
-SMTP_FROM = os.getenv("SMTP_FROM", "no-reply@evohomeimprovements.co.uk")
-SMTP_USE_TLS = os.getenv("SMTP_USE_TLS", "true").lower() in ("1", "true", "yes")
+EMAIL_FROM = os.getenv("EMAIL_FROM", "no-reply@evohomeimprovements.co.uk")
+LEADS_TO_EMAIL = os.getenv("LEADS_TO_EMAIL", "office@evohomeimprovements.co.uk")
 
-# Supabase client
-SUPABASE_KEY = SUPABASE_SERVICE_KEY or SUPABASE_ANON_KEY
-supabase: Optional[Client] = None
-if SUPABASE_URL and SUPABASE_KEY:
-    supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
-else:
-    logger.warning("Supabase not configured. Set SUPABASE_URL and SUPABASE_SERVICE_KEY on Render.")
+UPLOADS_DIR = pathlib.Path("uploads")
+UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
 
-# app
-app = FastAPI(title="EvoHome Backend", version="1.1.0", docs_url="/docs", redoc_url="/redoc")
+# ---------------------------
+# App + CORS
+# ---------------------------
+app = FastAPI(title="EvoHome Backend (FastAPI)")
 
-# CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[FRONTEND_ORIGIN],
+    allow_origins=ALLOWED_ORIGINS or ["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# rate limiter
-limiter = Limiter(key_func=get_remote_address, default_limits=[])
+# Serve admin static files under /admin/
+app.mount("/admin", StaticFiles(directory="admin_static", html=True), name="admin")
 
-@app.middleware("http")
-async def rate_limit_middleware(request: Request, call_next):
-    try:
-        response = await call_next(request)
-        return response
-    except RateLimitExceeded:
-        return JSONResponse(
-            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-            content={"detail": "Rate limit exceeded"},
-        )
+# Serve uploaded files (fallback) under /static/uploads/
+app.mount("/static/uploads", StaticFiles(directory="uploads"), name="uploads")
 
-app.state.limiter = limiter
+# ---------------------------
+# Database (SQLAlchemy)
+# ---------------------------
+Base = declarative_base()
+engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {})
+SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
 
-# Security
-bearer = HTTPBearer()
+# Generic content table (keyed by name)
+class Content(Base):
+    __tablename__ = "content"
+    id = Column(Integer, primary_key=True, index=True)
+    key = Column(String(200), unique=True, index=True)  # e.g. "homepage", "header", "seo"
+    data = Column(SAJSON, nullable=False)
 
-def require_admin(credentials: HTTPAuthorizationCredentials = Depends(bearer)):
-    token = credentials.credentials
-    try:
-        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALG])
-        sub = payload.get("sub")
-        if not sub or sub.lower() != ADMIN_EMAIL.lower():
-            raise HTTPException(status_code=401, detail="Unauthorized admin")
-        return sub
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid token")
+class Lead(Base):
+    __tablename__ = "leads"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(200))
+    email = Column(String(200))
+    phone = Column(String(100))
+    message = Column(Text)
+    created_at = Column(DateTime, default=datetime.utcnow)
 
-# Schemas
-class LeadIn(BaseModel):
-    name: constr(strip_whitespace=True, min_length=1, max_length=120)
+class ServiceItem(Base):
+    __tablename__ = "services"
+    id = Column(Integer, primary_key=True, index=True)
+    slug = Column(String(200), unique=True, index=True)
+    name = Column(String(300))
+    category = Column(String(200))
+    data = Column(SAJSON)
+
+class BlogPost(Base):
+    __tablename__ = "blogs"
+    id = Column(Integer, primary_key=True, index=True)
+    slug = Column(String(200), unique=True, index=True)
+    title = Column(String(400))
+    data = Column(SAJSON)
+
+class GalleryItem(Base):
+    __tablename__ = "gallery"
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String(400))
+    category = Column(String(200))
+    data = Column(SAJSON)
+
+Base.metadata.create_all(bind=engine)
+
+# ---------------------------
+# Pydantic Schemas
+# ---------------------------
+class LeadSchema(BaseModel):
+    name: str
     email: EmailStr
-    phone: constr(strip_whitespace=True, min_length=5, max_length=30)
-    message: constr(strip_whitespace=True, min_length=1, max_length=2000)
+    phone: Optional[str] = ""
+    message: Optional[str] = ""
 
-class LeadOut(BaseModel):
-    id: str
-    created_at: Optional[str] = None
-
-class AdminLoginIn(BaseModel):
+class AdminLogin(BaseModel):
     email: EmailStr
-    password: constr(min_length=6, max_length=200)
+    password: str
 
-class TokenOut(BaseModel):
-    access_token: str
-    token_type: str = "bearer"
-    expires_at: str
+class ContentSchema(BaseModel):
+    key: str
+    data: dict
 
-class ItemBase(BaseModel):
-    title: constr(strip_whitespace=True, min_length=1, max_length=200)
-    description: Optional[constr(strip_whitespace=True, max_length=2000)] = None
+class ServiceSchema(BaseModel):
+    slug: str
+    name: str
+    category: Optional[str] = ""
+    data: Optional[dict] = {}
 
-class BlogBase(ItemBase):
-    content: Optional[constr(strip_whitespace=True, max_length=20000)] = None
-
-class ItemOut(BaseModel):
-    id: str
+class BlogSchema(BaseModel):
+    slug: str
     title: str
-    description: Optional[str] = None
-    content: Optional[str] = None
-    image_url: Optional[str] = None
-    created_at: Optional[str] = None
-    updated_at: Optional[str] = None
+    data: Optional[dict] = {}
 
-# helpers
-def create_token(subject: str) -> TokenOut:
-    now = datetime.utcnow()
-    exp = now + timedelta(minutes=JWT_EXPIRES_MINUTES)
-    payload = {"sub": subject, "iat": int(now.timestamp()), "exp": int(exp.timestamp())}
-    token = jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALG)
-    return TokenOut(access_token=token, expires_at=exp.isoformat() + "Z")
+class GallerySchema(BaseModel):
+    title: str
+    category: Optional[str] = ""
+    data: Optional[dict] = {}
 
-def require_supabase():
-    if supabase is None:
-        raise HTTPException(status_code=500, detail="Supabase is not configured")
-    return supabase
+# ---------------------------
+# Simple in-memory rate limiter
+# ---------------------------
+# NOTE (5 y/o): This is a tiny lock that counts requests from each IP.
+# It's stored in memory and resets itself after a minute/hour. Works for demo.
+RATE_STORE: Dict[str, List[float]] = {}
+RATE_LIMIT_PER_MIN = int(os.getenv("RATE_LIMIT_PER_MIN", "10"))  # POSTs per minute per IP
+def rate_limit(request: Request):
+    if request.method != "POST":
+        return
+    ip = request.client.host
+    now = time.time()
+    window = 60
+    lst = RATE_STORE.get(ip, [])
+    # keep only last window
+    lst = [ts for ts in lst if now - ts < window]
+    if len(lst) >= RATE_LIMIT_PER_MIN:
+        raise HTTPException(status_code=429, detail="Too many requests - slow down")
+    lst.append(now)
+    RATE_STORE[ip] = lst
 
-def upload_to_storage(file: UploadFile, folder: str) -> str:
-    client = require_supabase()
-    ext = os.path.splitext(file.filename or "")[1].lower()
-    key = f"{folder}/{uuid4().hex}{ext or '.bin'}"
-    data = file.file.read()
-    file.file.seek(0)
+# ---------------------------
+# Auth helpers (very basic)
+# ---------------------------
+def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
+    to_encode = data.copy()
+    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=JWT_EXPIRE_MINUTES))
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, JWT_SECRET, algorithm=JWT_ALGO)
+    return encoded_jwt
+
+def verify_token(token: str):
     try:
-        client.storage.create_bucket(SUPABASE_STORAGE_BUCKET, public=True)
-    except Exception:
-        pass
-    res = client.storage.from_(SUPABASE_STORAGE_BUCKET).upload(file=data, path=key, file_options={"contentType": file.content_type or "application/octet-stream"})
-    public_url = client.storage.from_(SUPABASE_STORAGE_BUCKET).get_public_url(key)
-    return public_url
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGO])
+        return payload
+    except JWTError:
+        return None
 
-def insert_row(table: str, payload: dict) -> dict:
-    client = require_supabase()
-    resp = client.table(table).insert(payload).execute()
-    if resp.data is None or len(resp.data) == 0:
-        raise HTTPException(status_code=500, detail=f"Failed to insert into {table}")
-    return resp.data[0]
+def require_admin(request: Request):
+    auth = request.headers.get("authorization") or ""
+    if not auth.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Missing token")
+    token = auth.split(" ", 1)[1]
+    payload = verify_token(token)
+    if not payload or payload.get("sub") != "admin":
+        raise HTTPException(status_code=401, detail="Invalid token")
+    return True
 
-def update_row(table: str, item_id: str, payload: dict) -> dict:
-    client = require_supabase()
-    resp = client.table(table).update(payload).eq("id", item_id).execute()
-    if resp.data is None or len(resp.data) == 0:
-        raise HTTPException(status_code=404, detail=f"{table} item not found")
-    return resp.data[0]
-
-def delete_row(table: str, item_id: str) -> dict:
-    client = require_supabase()
-    resp = client.table(table).delete().eq("id", item_id).execute()
-    if resp.data is None or len(resp.data) == 0:
-        raise HTTPException(status_code=404, detail=f"{table} item not found")
-    return resp.data[0]
-
-def get_row(table: str, item_id: str) -> dict:
-    client = require_supabase()
-    resp = client.table(table).select("*").eq("id", item_id).single().execute()
-    if resp.data is None:
-        raise HTTPException(status_code=404, detail=f"{table} item not found")
-    return resp.data
-
-def list_rows(table: str, limit: int = 100) -> List[dict]:
-    client = require_supabase()
-    resp = client.table(table).select("*").order("created_at", desc=True).limit(limit).execute()
-    return resp.data or []
-
-def send_email(subject: str, body: str, to_emails: List[str]) -> bool:
-    if not SMTP_HOST or not SMTP_USER or not SMTP_PASS:
-        logger.warning("SMTP not configured. Skipping email.")
-        return False
+# ---------------------------
+# Supabase upload helper (fallback available)
+# ---------------------------
+def upload_to_supabase(file_bytes: bytes, remote_path: str, filename: str) -> Optional[str]:
+    """
+    Try to upload using Supabase Storage REST API.
+    Returns public URL on success or None on failure.
+    """
     try:
-        msg = EmailMessage()
-        msg["Subject"] = subject
-        msg["From"] = SMTP_FROM
-        msg["To"] = ", ".join(to_emails)
-        msg.set_content(body)
-        if SMTP_USE_TLS:
-            context = ssl.create_default_context()
-            with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
-                server.starttls(context=context)
-                server.login(SMTP_USER, SMTP_PASS)
-                server.send_message(msg)
-        else:
-            with smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT) as server:
-                server.login(SMTP_USER, SMTP_PASS)
-                server.send_message(msg)
-        logger.info("Email sent to %s", to_emails)
-        return True
+        if not SUPABASE_URL or not SUPABASE_KEY:
+            return None
+        # Upload endpoint: POST {SUPABASE_URL}/storage/v1/object/{bucket}
+        # We'll send multipart form file with name= file contents
+        url = f"{SUPABASE_URL}/storage/v1/object/{SUPABASE_BUCKET}/{remote_path}"
+        # Some Supabase instances expect POST to /object/{bucket} path without file name; if that fails
+        # we fallback to a generic upload API using bucket only:
+        basic_upload_url = f"{SUPABASE_URL}/storage/v1/object/{SUPABASE_BUCKET}"
+        headers = {"Authorization": f"Bearer {SUPABASE_KEY}"}
+        files = {"file": (filename, file_bytes)}
+        # Try direct bucket path first
+        resp = requests.post(basic_upload_url, headers=headers, files=files, timeout=30)
+        if resp.ok:
+            public = f"{SUPABASE_URL}/storage/v1/object/public/{SUPABASE_BUCKET}/{remote_path or filename}"
+            return public
+        # fallback: try the remote_path url variant
+        resp = requests.post(url, headers=headers, files=files, timeout=30)
+        if resp.ok:
+            public = f"{SUPABASE_URL}/storage/v1/object/public/{SUPABASE_BUCKET}/{remote_path or filename}"
+            return public
+        app.logger and app.logger.error("Supabase upload failed: %s" % resp.text)
     except Exception as e:
-        logger.error("Failed to send email: %s", e)
-        return False
+        print("Supabase upload error:", e)
+    return None
 
-# routes
+# ---------------------------
+# Utility DB helpers
+# ---------------------------
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+# ---------------------------
+# Basic endpoints + admin
+# ---------------------------
+
 @app.get("/health")
 def health():
-    return {"status": "ok", "time": datetime.utcnow().isoformat() + "Z"}
+    return {"status": "ok", "time": datetime.utcnow().isoformat()}
 
-@app.post("/lead", response_model=LeadOut)
-@limiter.limit(RATE_LIMIT_POST)
-def create_lead(payload: LeadIn, request: Request):
-    logger.info("New lead from %s <%s>", payload.name, payload.email)
-    row = insert_row("leads", {
-        "name": payload.name,
-        "email": payload.email,
-        "phone": payload.phone,
-        "message": payload.message,
-    })
-    # Send email to office
-    subject = f"New EvoHome lead from {payload.name}"
-    body = f"Name: {payload.name}\nEmail: {payload.email}\nPhone: {payload.phone}\n\nMessage:\n{payload.message}\n\nSaved at: {row.get('created_at')}"
-    try:
-        send_email(subject, body, [LEAD_NOTIFY_EMAIL])
-    except Exception as e:
-        logger.error("Error sending lead email: %s", e)
-    return {"id": row.get("id"), "created_at": row.get("created_at")}
-
-@app.post("/admin/login", response_model=TokenOut)
-@limiter.limit(RATE_LIMIT_POST)
-def admin_login(body: AdminLoginIn, request: Request):
-    if body.email.lower() != ADMIN_EMAIL.lower() or body.password != ADMIN_PASSWORD:
+@app.post("/admin/login")
+def admin_login(payload: AdminLogin):
+    # Very small, simple check against env var username+password.
+    if payload.email.lower() != ADMIN_EMAIL.lower() or payload.password != ADMIN_PASSWORD:
         raise HTTPException(status_code=401, detail="Invalid credentials")
-    return create_token(subject=body.email.lower())
+    token = create_access_token({"sub": "admin", "email": ADMIN_EMAIL})
+    return {"access_token": token, "token_type": "bearer"}
 
-# public reads
-@app.get("/gallery", response_model=List[ItemOut])
-def gallery_list(limit: int = 100):
-    return list_rows("gallery", limit=limit)
+@app.post("/lead", status_code=201)
+def create_lead(lead: LeadSchema, request: Request):
+    rate_limit(request)
+    db = next(get_db())
+    db_lead = Lead(name=lead.name, email=lead.email, phone=lead.phone, message=lead.message)
+    db.add(db_lead)
+    db.commit()
+    db.refresh(db_lead)
 
-@app.get("/gallery/{item_id}", response_model=ItemOut)
-def gallery_get(item_id: str):
-    return get_row("gallery", item_id)
+    # Try to send email via SMTP if configured
+    subject = f"New lead from {lead.name}"
+    body = f"Name: {lead.name}\nEmail: {lead.email}\nPhone: {lead.phone}\n\nMessage:\n{lead.message}\n\nReceived: {db_lead.created_at}"
+    try:
+        if SMTP_HOST and SMTP_USER and SMTP_PASS:
+            s = smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=15)
+            s.starttls()
+            s.login(SMTP_USER, SMTP_PASS)
+            msg = f"From: {EMAIL_FROM}\r\nTo: {LEADS_TO_EMAIL}\r\nSubject: {subject}\r\n\r\n{body}"
+            s.sendmail(EMAIL_FROM, [LEADS_TO_EMAIL], msg.encode("utf8"))
+            s.quit()
+        else:
+            # fallback: log (Render logs visible to you)
+            print("EMAIL (not sent - SMTP not configured):", subject, body)
+    except Exception as e:
+        print("Error sending lead email:", e, traceback.format_exc())
 
-# admin writes - gallery
-@app.post("/gallery", response_model=ItemOut)
-@limiter.limit(RATE_LIMIT_POST)
-def gallery_create(
-    request: Request,
-    title: str = Form(...),
-    description: Optional[str] = Form(None),
-    image: UploadFile = File(...),
-    admin: str = Depends(require_admin),
-):
-    image_url = upload_to_storage(image, folder="gallery")
-    row = insert_row("gallery", {
-        "title": title,
-        "description": description,
-        "image_url": image_url,
-    })
-    return row
+    return {"detail": "Lead received", "id": db_lead.id}
 
-@app.put("/gallery/{item_id}", response_model=ItemOut)
-def gallery_update(
-    item_id: str,
-    title: Optional[str] = Form(None),
-    description: Optional[str] = Form(None),
-    image: Optional[UploadFile] = File(None),
-    admin: str = Depends(require_admin),
-):
-    payload = {}
-    if title is not None:
-        payload["title"] = title
-    if description is not None:
-        payload["description"] = description
-    if image is not None:
-        payload["image_url"] = upload_to_storage(image, folder="gallery")
-    payload["updated_at"] = datetime.utcnow().isoformat() + "Z"
-    return update_row("gallery", item_id, payload)
+@app.post("/chatbot")
+def chatbot(payload: dict, request: Request):
+    rate_limit(request)
+    # very simple - echo + dummy reply
+    msg = payload.get("message", "")
+    return {"reply": f"EvoBot: I received your message '{msg}'. An agent will follow up soon."}
+
+# ---------------------------
+# Generic content CRUD (homepage, header, footer, seo, request-quote, chatbot, forms, coverage)
+# ---------------------------
+
+@app.get("/content/{key}")
+def get_content(key: str):
+    db = next(get_db())
+    item = db.query(Content).filter(Content.key == key).first()
+    if not item:
+        raise HTTPException(status_code=404, detail="Not found")
+    return item.data
+
+@app.post("/content/{key}", summary="Create or replace a content object (admin only)")
+def set_content(key: str, payload: dict, request: Request):
+    require_admin(request)
+    db = next(get_db())
+    item = db.query(Content).filter(Content.key == key).first()
+    if item:
+        item.data = payload
+    else:
+        item = Content(key=key, data=payload)
+        db.add(item)
+    db.commit()
+    return {"detail": "saved", "key": key}
+
+@app.delete("/content/{key}")
+def delete_content(key: str, request: Request):
+    require_admin(request)
+    db = next(get_db())
+    item = db.query(Content).filter(Content.key == key).first()
+    if not item:
+        raise HTTPException(status_code=404, detail="Not found")
+    db.delete(item)
+    db.commit()
+    return {"detail": "deleted"}
+
+# ---------------------------
+# Services CRUD
+# ---------------------------
+@app.post("/services", summary="Create a service (admin)")
+def create_service(payload: ServiceSchema, request: Request):
+    require_admin(request)
+    db = next(get_db())
+    s = ServiceItem(slug=payload.slug, name=payload.name, category=payload.category, data=payload.data or {})
+    db.add(s)
+    db.commit()
+    db.refresh(s)
+    return {"id": s.id, "slug": s.slug}
+
+@app.get("/services", summary="List services")
+def list_services():
+    db = next(get_db())
+    rows = db.query(ServiceItem).all()
+    return [{"id": r.id, "slug": r.slug, "name": r.name, "category": r.category, "data": r.data} for r in rows]
+
+@app.get("/services/{slug}")
+def get_service(slug: str):
+    db = next(get_db())
+    r = db.query(ServiceItem).filter(ServiceItem.slug == slug).first()
+    if not r:
+        raise HTTPException(status_code=404, detail="Not found")
+    return {"id": r.id, "slug": r.slug, "name": r.name, "category": r.category, "data": r.data}
+
+@app.put("/services/{slug}", summary="Update service (admin)")
+def update_service(slug: str, payload: ServiceSchema, request: Request):
+    require_admin(request)
+    db = next(get_db())
+    r = db.query(ServiceItem).filter(ServiceItem.slug == slug).first()
+    if not r:
+        raise HTTPException(status_code=404, detail="Not found")
+    r.slug = payload.slug
+    r.name = payload.name
+    r.category = payload.category
+    r.data = payload.data or r.data
+    db.commit()
+    return {"detail": "updated"}
+
+@app.delete("/services/{slug}", summary="Delete service (admin)")
+def delete_service(slug: str, request: Request):
+    require_admin(request)
+    db = next(get_db())
+    r = db.query(ServiceItem).filter(ServiceItem.slug == slug).first()
+    if not r:
+        raise HTTPException(status_code=404, detail="Not found")
+    db.delete(r)
+    db.commit()
+    return {"detail": "deleted"}
+
+# ---------------------------
+# Blogs CRUD
+# ---------------------------
+@app.post("/blogs", summary="Create blog (admin)")
+def create_blog(payload: BlogSchema, request: Request):
+    require_admin(request)
+    db = next(get_db())
+    b = BlogPost(slug=payload.slug, title=payload.title, data=payload.data or {})
+    db.add(b)
+    db.commit()
+    db.refresh(b)
+    return {"id": b.id, "slug": b.slug}
+
+@app.get("/blogs")
+def list_blogs():
+    db = next(get_db())
+    rows = db.query(BlogPost).all()
+    return [{"id": r.id, "slug": r.slug, "title": r.title, "data": r.data} for r in rows]
+
+@app.get("/blogs/{slug}")
+def get_blog(slug: str):
+    db = next(get_db())
+    r = db.query(BlogPost).filter(BlogPost.slug == slug).first()
+    if not r:
+        raise HTTPException(status_code=404, detail="Not found")
+    return {"id": r.id, "slug": r.slug, "title": r.title, "data": r.data}
+
+@app.put("/blogs/{slug}")
+def update_blog(slug: str, payload: BlogSchema, request: Request):
+    require_admin(request)
+    db = next(get_db())
+    r = db.query(BlogPost).filter(BlogPost.slug == slug).first()
+    if not r:
+        raise HTTPException(status_code=404, detail="Not found")
+    r.slug = payload.slug
+    r.title = payload.title
+    r.data = payload.data or r.data
+    db.commit()
+    return {"detail": "updated"}
+
+@app.delete("/blogs/{slug}")
+def delete_blog(slug: str, request: Request):
+    require_admin(request)
+    db = next(get_db())
+    r = db.query(BlogPost).filter(BlogPost.slug == slug).first()
+    if not r:
+        raise HTTPException(status_code=404, detail="Not found")
+    db.delete(r)
+    db.commit()
+    return {"detail": "deleted"}
+
+# ---------------------------
+# Gallery CRUD
+# ---------------------------
+@app.post("/gallery", summary="Create gallery item (admin)")
+def create_gallery(payload: GallerySchema, request: Request):
+    require_admin(request)
+    db = next(get_db())
+    g = GalleryItem(title=payload.title, category=payload.category, data=payload.data or {})
+    db.add(g)
+    db.commit()
+    db.refresh(g)
+    return {"id": g.id}
+
+@app.get("/gallery")
+def list_gallery():
+    db = next(get_db())
+    rows = db.query(GalleryItem).all()
+    return [{"id": r.id, "title": r.title, "category": r.category, "data": r.data} for r in rows]
+
+@app.get("/gallery/{item_id}")
+def get_gallery_item(item_id: int):
+    db = next(get_db())
+    r = db.query(GalleryItem).filter(GalleryItem.id == item_id).first()
+    if not r:
+        raise HTTPException(status_code=404, detail="Not found")
+    return {"id": r.id, "title": r.title, "category": r.category, "data": r.data}
+
+@app.put("/gallery/{item_id}")
+def update_gallery(item_id: int, payload: GallerySchema, request: Request):
+    require_admin(request)
+    db = next(get_db())
+    r = db.query(GalleryItem).filter(GalleryItem.id == item_id).first()
+    if not r:
+        raise HTTPException(status_code=404, detail="Not found")
+    r.title = payload.title
+    r.category = payload.category
+    r.data = payload.data or r.data
+    db.commit()
+    return {"detail": "updated"}
 
 @app.delete("/gallery/{item_id}")
-def gallery_delete(item_id: str, admin: str = Depends(require_admin)):
-    delete_row("gallery", item_id)
-    return {"status": "deleted"}
+def delete_gallery(item_id: int, request: Request):
+    require_admin(request)
+    db = next(get_db())
+    r = db.query(GalleryItem).filter(GalleryItem.id == item_id).first()
+    if not r:
+        raise HTTPException(status_code=404, detail="Not found")
+    db.delete(r)
+    db.commit()
+    return {"detail": "deleted"}
 
-# services
-@app.get("/services", response_model=List[ItemOut])
-def services_list(limit: int = 100):
-    return list_rows("services", limit=limit)
+# ---------------------------
+# Image upload endpoint
+# ---------------------------
+@app.post("/upload-image")
+def upload_image(file: UploadFile = File(...), request: Request = None):
+    # Admin and non-admin both can upload if desired; for safety require admin
+    require_admin(request)
+    content = file.file.read()
+    filename = f"{int(time.time())}_{file.filename.replace(' ', '_')}"
+    # Try Supabase first
+    remote_path = filename
+    public_url = None
+    try:
+        public_url = upload_to_supabase(content, remote_path, filename)
+    except Exception as e:
+        print("Supabase upload exception:", e)
+    # fallback: save locally to /uploads
+    if not public_url:
+        path = UPLOADS_DIR / filename
+        with open(path, "wb") as f:
+            f.write(content)
+        public_url = f"/static/uploads/{filename}"
+    return {"url": public_url, "filename": filename}
 
-@app.get("/services/{item_id}", response_model=ItemOut)
-def services_get(item_id: str):
-    return get_row("services", item_id)
+# ---------------------------
+# Seed endpoint - loads JSON files from seed_data/
+# ---------------------------
+@app.post("/seed")
+def seed_all(request: Request):
+    require_admin(request)
+    seed_dir = pathlib.Path("seed_data")
+    if not seed_dir.exists():
+        return {"detail": "No seed_data directory found. Upload JSON files into seed_data/"}
+    db = next(get_db())
+    files = list(seed_dir.glob("*.json"))
+    inserted = []
+    for f in files:
+        key = f.stem  # e.g. homepage.json -> homepage
+        try:
+            data = json.loads(f.read_text(encoding="utf8"))
+        except Exception as e:
+            print("Seed read error", f, e)
+            continue
+        existing = db.query(Content).filter(Content.key == key).first()
+        if existing:
+            existing.data = data
+        else:
+            new = Content(key=key, data=data)
+            db.add(new)
+        db.commit()
+        inserted.append(key)
+    return {"inserted": inserted}
 
-@app.post("/services", response_model=ItemOut)
-@limiter.limit(RATE_LIMIT_POST)
-def services_create(
-    request: Request,
-    title: str = Form(...),
-    description: Optional[str] = Form(None),
-    image: Optional[UploadFile] = File(None),
-    admin: str = Depends(require_admin),
-):
-    image_url = upload_to_storage(image, folder="services") if image else None
-    row = insert_row("services", {
-        "title": title,
-        "description": description,
-        "image_url": image_url,
-    })
-    return row
-
-@app.put("/services/{item_id}", response_model=ItemOut)
-def services_update(
-    item_id: str,
-    title: Optional[str] = Form(None),
-    description: Optional[str] = Form(None),
-    image: Optional[UploadFile] = File(None),
-    admin: str = Depends(require_admin),
-):
-    payload = {}
-    if title is not None:
-        payload["title"] = title
-    if description is not None:
-        payload["description"] = description
-    if image is not None:
-        payload["image_url"] = upload_to_storage(image, folder="services")
-    payload["updated_at"] = datetime.utcnow().isoformat() + "Z"
-    return update_row("services", item_id, payload)
-
-@app.delete("/services/{item_id}")
-def services_delete(item_id: str, admin: str = Depends(require_admin)):
-    delete_row("services", item_id)
-    return {"status": "deleted"}
-
-# blogs
-@app.get("/blogs", response_model=List[ItemOut])
-def blogs_list(limit: int = 100):
-    return list_rows("blogs", limit=limit)
-
-@app.get("/blogs/{item_id}", response_model=ItemOut)
-def blogs_get(item_id: str):
-    return get_row("blogs", item_id)
-
-@app.post("/blogs", response_model=ItemOut)
-@limiter.limit(RATE_LIMIT_POST)
-def blogs_create(
-    request: Request,
-    title: str = Form(...),
-    description: Optional[str] = Form(None),
-    content: Optional[str] = Form(None),
-    image: Optional[UploadFile] = File(None),
-    admin: str = Depends(require_admin),
-):
-    image_url = upload_to_storage(image, folder="blogs") if image else None
-    row = insert_row("blogs", {
-        "title": title,
-        "description": description,
-        "content": content,
-        "image_url": image_url,
-    })
-    return row
-
-@app.put("/blogs/{item_id}", response_model=ItemOut)
-def blogs_update(
-    item_id: str,
-    title: Optional[str] = Form(None),
-    description: Optional[str] = Form(None),
-    content: Optional[str] = Form(None),
-    image: Optional[UploadFile] = File(None),
-    admin: str = Depends(require_admin),
-):
-    payload = {}
-    if title is not None:
-        payload["title"] = title
-    if description is not None:
-        payload["description"] = description
-    if content is not None:
-        payload["content"] = content
-    if image is not None:
-        payload["image_url"] = upload_to_storage(image, folder="blogs")
-    payload["updated_at"] = datetime.utcnow().isoformat() + "Z"
-    return update_row("blogs", item_id, payload)
-
-@app.delete("/blogs/{item_id}")
-def blogs_delete(item_id: str, admin: str = Depends(require_admin)):
-    delete_row("blogs", item_id)
-    return {"status": "deleted"}
-
-# chatbot
-class ChatIn(BaseModel):
-    message: constr(strip_whitespace=True, min_length=1, max_length=4000)
-
-class ChatOut(BaseModel):
-    reply: str
-
-@app.post("/chatbot", response_model=ChatOut)
-@limiter.limit(RATE_LIMIT_POST)
-def chatbot(body: ChatIn, request: Request):
-    reply = f"Thanks for your message: '{body.message}'. Our team will follow up shortly."
-    return {"reply": reply}
-
-# mount admin static UI
-app.mount("/admin", StaticFiles(directory="admin_static", html=True), name="admin")
+# ---------------------------
+# Simple root
+# ---------------------------
+@app.get("/")
+def root():
+    return {"detail": "EvoHome backend running. Open /docs for API docs or /admin for dashboard."}
