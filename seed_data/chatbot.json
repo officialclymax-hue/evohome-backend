@@ -1,0 +1,30 @@
+{
+  "file": "chatbot.json",
+  "widget": {
+    "title": "Chat with EvoBot",
+    "greeting": "Hi! I’m EvoBot 👋 How can I help with your home improvement project today?",
+    "placeholder": "Ask about services, grants, quotes...",
+    "quickActions": [
+      { "label": "☀️ Solar Quote", "message": "I want a quote for solar panels" },
+      { "label": "🔥 Heat Pump Info", "message": "Tell me about heat pumps and the £7,500 grant" },
+      { "label": "🪟 Window Prices", "message": "How much do new windows cost?" },
+      { "label": "📞 Call Me Back", "message": "Please arrange a callback for my project" }
+    ],
+    "footerTrust": "4.9/5 rated • 100% protected",
+    "contactShortcuts": [
+      { "label": "Call Us", "href": "tel:03330040195" },
+      { "label": "Get Quote", "href": "#quote-form" }
+    ],
+    "images": []
+  },
+  "companyProfile": {
+    "legalName": "EvoHome Improvements Ltd",
+    "tagline": "The Smarter Way to Improve Your Home",
+    "founded": "30+ years industry expertise",
+    "phone": "0333 004 0195",
+    "whatsapp": "07895 545248",
+    "email": "office@evohomeimprovements.co.uk",
+    "coverage": "Hampshire, Surrey, Sussex, Dorset, Wiltshire",
+    "images": []
+  }
+}
