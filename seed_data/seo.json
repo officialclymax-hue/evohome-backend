@@ -1,0 +1,12 @@
+{
+  "file": "seo.json",
+  "defaults": {
+    "siteName": "EvoHome Improvements",
+    "ogImage": "/8350661c-0317-4d61-939e-72d9dba47c95.JPG",
+    "twitterHandle": "@evohomeimprovements",
+    "locale": "en_GB",
+    "region": "GB",
+    "placename": "Hampshire, Surrey, Sussex, Dorset, Wiltshire",
+    "images": ["/8350661c-0317-4d61-939e-72d9dba47c95.JPG"]
+  }
+}
