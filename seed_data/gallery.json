@@ -1,0 +1,108 @@
+{
+  "file": "gallery.json",
+  "items": [
+    {
+      "id": "g1",
+      "title": "Solar Panel Installation",
+      "category": "Renewables",
+      "src": "https://images.pexels.com/photos/9875441/pexels-photo-9875441.jpeg",
+      "images": ["https://images.pexels.com/photos/9875441/pexels-photo-9875441.jpeg"],
+      "alt": "Solar panel array on roof"
+    },
+    {
+      "id": "g2",
+      "title": "Air Source Heat Pump",
+      "category": "Renewables",
+      "src": "https://images.pexels.com/photos/9875419/pexels-photo-9875419.jpeg",
+      "images": ["https://images.pexels.com/photos/9875419/pexels-photo-9875419.jpeg"],
+      "alt": "Heat pump outdoor unit"
+    },
+    {
+      "id": "g3",
+      "title": "Window Installation",
+      "category": "Improvements",
+      "src": "https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg",
+      "images": ["https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg"],
+      "alt": "New windows"
+    },
+    {
+      "id": "g4",
+      "title": "Roofing Project",
+      "category": "Improvements",
+      "src": "https://images.pexels.com/photos/3614087/pexels-photo-3614087.jpeg",
+      "images": ["https://images.pexels.com/photos/3614087/pexels-photo-3614087.jpeg"],
+      "alt": "Roofers working"
+    },
+    {
+      "id": "g5",
+      "title": "Garden Decking",
+      "category": "Garden",
+      "src": "https://images.pexels.com/photos/1396131/pexels-photo-1396131.jpeg",
+      "images": ["https://images.pexels.com/photos/1396131/pexels-photo-1396131.jpeg"],
+      "alt": "Composite decking"
+    },
+    {
+      "id": "g6",
+      "title": "Kitchen Installation",
+      "category": "Interiors",
+      "src": "https://images.pexels.com/photos/534174/pexels-photo-534174.jpeg",
+      "images": ["https://images.pexels.com/photos/534174/pexels-photo-534174.jpeg"],
+      "alt": "Modern kitchen"
+    },
+    {
+      "id": "g7",
+      "title": "Bathroom Renovation",
+      "category": "Interiors",
+      "src": "https://images.pexels.com/photos/1571457/pexels-photo-1571457.jpeg",
+      "images": ["https://images.pexels.com/photos/1571457/pexels-photo-1571457.jpeg"],
+      "alt": "Bathroom"
+    },
+    {
+      "id": "g8",
+      "title": "Driveway Paving",
+      "category": "Exteriors",
+      "src": "https://images.pexels.com/photos/6813316/pexels-photo-6813316.jpeg",
+      "images": ["https://images.pexels.com/photos/6813316/pexels-photo-6813316.jpeg"],
+      "alt": "Block paving"
+    },
+    {
+      "id": "g9",
+      "title": "External Rendering",
+      "category": "Exteriors",
+      "src": "https://images.pexels.com/photos/5806941/pexels-photo-5806941.jpeg",
+      "images": ["https://images.pexels.com/photos/5806941/pexels-photo-5806941.jpeg"],
+      "alt": "Rendering work"
+    },
+    {
+      "id": "g10",
+      "title": "Home Renovation",
+      "category": "Improvements",
+      "src": "https://images.pexels.com/photos/6474451/pexels-photo-6474451.jpeg",
+      "images": ["https://images.pexels.com/photos/6474451/pexels-photo-6474451.jpeg"],
+      "alt": "Home renovation"
+    },
+    {
+      "id": "g11",
+      "title": "Patio & Landscaping",
+      "category": "Garden",
+      "src": "https://images.pexels.com/photos/450597/pexels-photo-450597.jpeg",
+      "images": ["https://images.pexels.com/photos/450597/pexels-photo-450597.jpeg"],
+      "alt": "Patio and garden"
+    },
+    {
+      "id": "g12",
+      "title": "Front Door & Windows",
+      "category": "Improvements",
+      "src": "https://images.pexels.com/photos/7553850/pexels-photo-7553850.jpeg",
+      "images": ["https://images.pexels.com/photos/7553850/pexels-photo-7553850.jpeg"],
+      "alt": "Front door and windows"
+    }
+  ],
+  "cta": {
+    "title": "Ready to Start Your Project?",
+    "subtitle": "Join thousands of satisfied homeowners who've trusted EvoHome with their home improvement projects.",
+    "primaryCta": { "label": "Request Free Quote", "href": "/request-quote" },
+    "secondaryCta": { "label": "Call: 0333 004 0195", "href": "tel:03330040195" },
+    "images": []
+  }
+}
