@@ -1,0 +1,61 @@
+{
+  "file": "contact.json",
+  "seo": {
+    "title": "Contact EvoHome Improvements - Hampshire, Surrey, Sussex Home Improvement Specialists",
+    "description": "Contact EvoHome Improvements for free home improvement advice. Call 0333 004 0195, email office@evohomeimprovements.co.uk or use our contact form for free quotes across Hampshire, Surrey, Sussex.",
+    "keywords": "contact evohome, home improvement quotes, Hampshire, Surrey, Sussex, Dorset, Wiltshire, free consultation, 0333 004 0195",
+    "canonical": "https://evohomeimprovements.co.uk/contact"
+  },
+  "hero": {
+    "title": "Contact Us",
+    "subtitle": "Get in touch with our home improvement experts. We're here to help with your project from start to finish.",
+    "images": []
+  },
+  "cards": [
+    {
+      "title": "Phone",
+      "value": "0333 004 0195",
+      "href": "tel:03330040195",
+      "note": "Free consultation and quotes",
+      "images": []
+    },
+    {
+      "title": "Email",
+      "value": "office@evohomeimprovements.co.uk",
+      "href": "mailto:office@evohomeimprovements.co.uk",
+      "note": "24-hour response guarantee",
+      "images": []
+    },
+    {
+      "title": "Location",
+      "value": "Southern England",
+      "images": []
+    }
+  ],
+  "hours": "Mon-Fri 8AM-6PM, Sat 9AM-4PM",
+  "form": {
+    "fields": ["name", "email", "phone", "postcode", "service", "message"],
+    "services": [
+      "Solar Power",
+      "Air Source Heat Pump",
+      "Ground Source Heat Pump",
+      "Windows & Doors",
+      "Insulation",
+      "Roofing & Roofline",
+      "Driveways",
+      "Kitchens",
+      "Bathrooms",
+      "Cladding",
+      "Decking",
+      "Landscaping",
+      "Property Maintenance",
+      "Other - Please specify in message"
+    ],
+    "submitText": "Send Message",
+    "success": {
+      "title": "Message Sent Successfully!",
+      "body": "Thank you for contacting us. We'll get back to you within 24 hours.",
+      "cta": { "label": "Call: 0333 004 0195", "href": "tel:03330040195" }
+    }
+  }
+}
