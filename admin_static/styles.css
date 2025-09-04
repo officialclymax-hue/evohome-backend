@@ -1,11 +1,12 @@
-body{font-family:Inter,Arial,Helvetica,sans-serif;background:#f4f7fb;color:#0b1221;padding:20px}
-.card{background:#fff;padding:16px;border-radius:8px;box-shadow:0 6px 18px rgba(13,37,63,0.08);max-width:420px}
-input,textarea{width:100%;padding:8px;margin:6px 0;border:1px solid #e5e7eb;border-radius:6px}
-button{background:#0b74ff;color:#fff;padding:8px 12px;border-radius:6px;border:none;cursor:pointer}
-.toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-.tabs{margin:12px 0}
-.tab-btn{margin-right:6px;padding:8px 10px;border-radius:6px;border:1px solid #d1d5db;background:#fff;cursor:pointer}
-.list-item{background:#fff;padding:10px;margin-bottom:8px;border-radius:6px;display:flex;gap:10px;align-items:center}
-.thumb{width:80px;height:60px;object-fit:cover;border-radius:6px;border:1px solid #eef2f7}
-.form-row{background:#fff;padding:10px;border-radius:6px;margin-bottom:12px}
-small{color:#6b7280}
+body { font-family: Arial, Helvetica, sans-serif; padding: 20px; background:#f4f7fb; color:#111;}
+#app { max-width:1100px; margin: 0 auto; background:#fff; padding:20px; border-radius:8px; box-shadow: 0 4px 14px rgba(0,0,0,0.06);}
+.columns { display:flex; gap:20px;}
+.col { padding:10px; background:#fafafa; border-radius:6px; flex:1;}
+.left { max-width:240px; }
+textarea { width:100%; font-family: monospace; }
+.topbar { display:flex; justify-content:flex-end; }
+ul { list-style:none; padding:0;}
+li { padding:6px 8px; border-bottom:1px solid #eee; cursor:pointer; }
+li:hover { background:#fff; }
+button { background:#0a84ff; color:white; border:none; padding:8px 12px; border-radius:5px; cursor:pointer;}
+button:disabled {opacity:.6}
