@@ -1,0 +1,16 @@
+{
+  "file": "floating-buttons.json",
+  "whatsapp": {
+    "numberIntl": "447895545248",
+    "prefill": "Hi, I'd like to enquire about your home improvement services.",
+    "href": "https://wa.me/447895545248?text=Hi%2C%20I%27d%20like%20to%20enquire%20about%20your%20home%20improvement%20services.%20Can%20you%20help%20me%20get%20started%3F",
+    "title": "WhatsApp: 07895 545248",
+    "images": []
+  },
+  "call": {
+    "label": "Call EvoHome",
+    "phone": "0333 004 0195",
+    "href": "tel:03330040195",
+    "images": []
+  }
+}
