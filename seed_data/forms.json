@@ -1,0 +1,34 @@
+{
+  "file": "forms.json",
+  "quoteForm": {
+    "title": "Request a Home Improvement Quote?",
+    "subtitle": "Looking for home improvement quote, ideas or information?",
+    "fields": [
+      "firstName","lastName","email","phone","postcode","streetAddress","service","message",
+      "marketingConsent","dataConsent"
+    ],
+    "serviceOptions": [
+      "Solar Power","Air Source Heat Pump","Ground Source Heat Pump","Windows & Doors",
+      "Insulation","Roofing & Roofline","Driveways","Kitchens","Bathrooms",
+      "Cladding","Decking","Landscaping","Property Maintenance","Other - Please specify in message"
+    ],
+    "buttons": { "submitIdle": "Submit", "submitBusy": "Submitting..." },
+    "validation": {
+      "firstName": "First name is required",
+      "lastName": "Last name is required",
+      "emailRequired": "Email is required",
+      "emailInvalid": "Please enter a valid email",
+      "phone": "Phone number is required",
+      "postcode": "Postcode is required",
+      "streetAddress": "Street address is required",
+      "service": "Please select a service",
+      "dataConsent": "You must agree to data processing"
+    },
+    "consent": {
+      "marketing": "I agree to receive marketing communications.",
+      "data": "I agree to the processing of my data for the purpose of this enquiry."
+    },
+    "privacyNote": "You can unsubscribe from these communications at any time. For more information on how to unsubscribe, our privacy practices, and how we are committed to protecting and respecting your privacy, please review our Privacy Policy.",
+    "images": []
+  }
+}
