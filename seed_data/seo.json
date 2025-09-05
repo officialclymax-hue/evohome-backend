@@ -1,12 +1,13 @@
 {
-  "file": "seo.json",
-  "defaults": {
-    "siteName": "EvoHome Improvements",
-    "ogImage": "/8350661c-0317-4d61-939e-72d9dba47c95.JPG",
-    "twitterHandle": "@evohomeimprovements",
-    "locale": "en_GB",
-    "region": "GB",
-    "placename": "Hampshire, Surrey, Sussex, Dorset, Wiltshire",
-    "images": ["/8350661c-0317-4d61-939e-72d9dba47c95.JPG"]
+  "site_name": "EvoHome Improvements",
+  "default": {
+    "title": "EvoHome Improvements – The Smarter Way to Improve Your Home",
+    "description": "Home Improvement in Hampshire & Surrounding Areas. Professional home improvements with 100% homeowner protection.",
+    "keywords": ["home improvements", "Hampshire", "Surrey", "Sussex", "Dorset", "Wiltshire", "solar panels", "heat pumps", "windows", "roofing"],
+    "images": []
+  },
+  "opengraph": {
+    "url": "https://evohomeimprovements.co.uk",
+    "logo": "https://evohomeimprovements.co.uk/8350661c-0317-4d61-939e-72d9dba47c95.JPG"
   }
 }
