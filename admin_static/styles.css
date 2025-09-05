@@ -10,3 +10,6 @@ li { padding:6px 8px; border-bottom:1px solid #eee; cursor:pointer; }
 li:hover { background:#fff; }
 button { background:#0a84ff; color:white; border:none; padding:8px 12px; border-radius:5px; cursor:pointer;}
 button:disabled {opacity:.6}
+h1 { color:#0a84ff; margin-bottom:20px; }
+h4 { margin-top:15px; margin-bottom:5px; color:#555; font-size:14px; }
+#editor { min-height:400px; }
