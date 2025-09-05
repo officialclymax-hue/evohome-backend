@@ -1,8 +1,7 @@
 // admin_static/app.js
-const API_BASE = window.location.origin; // backend base URL
-let token = null;
+const API_BASE = window.location.origin;
+let token = localStorage.getItem("ADMIN_JWT") || null;
 
-// Separate collections
 const contentCollections = [
   "homepage", "header", "about", "contact", "footer",
   "coverage", "seo", "request-quote", "forms",
@@ -12,12 +11,14 @@ const dataCollections = ["services", "blogs", "gallery"];
 
 function $(id){ return document.getElementById(id); }
 
-// Wrapper for API calls
-async function api(path, options={}){
+async function api(path, options = {}) {
   const headers = options.headers || {};
-  if(token) headers["Authorization"]="Bearer "+token;
-  const res = await fetch(API_BASE + path, {...options, headers});
-  if(res.status===401) {
+  if (token) headers["Authorization"] = "Bearer " + token;
+  if (!options.body && options.method && options.method !== "GET" && !headers["Content-Type"]) {
+    headers["Content-Type"] = "application/json";
+  }
+  const res = await fetch(API_BASE + path, { ...options, headers });
+  if (res.status === 401) {
     alert("Not authorized. Please login again.");
     logout();
     throw new Error("Unauthorized");
@@ -25,14 +26,14 @@ async function api(path, options={}){
   return res;
 }
 
-// Login
+// ----- Auth -----
 async function login(){
-  const email = $("email").value;
-  const password = $("password").value;
-  const res = await fetch(API_BASE+"/admin/login", {
+  const email = $("email").value.trim();
+  const password = $("password").value.trim();
+  const res = await fetch(API_BASE + "/auth/login", {
     method: "POST",
     headers: {"Content-Type":"application/json"},
-    body: JSON.stringify({email, password})
+    body: JSON.stringify({ email, password })
   });
   if(!res.ok){
     $("loginMsg").innerText = "Login failed";
@@ -40,22 +41,23 @@ async function login(){
   }
   const data = await res.json();
   token = data.access_token;
-  $("login").style.display="none";
-  $("main").style.display="";
+  localStorage.setItem("ADMIN_JWT", token);
+  $("login").style.display = "none";
+  $("main").style.display = "";
   initCollections();
 }
 
-// Logout
 function logout(){
   token = null;
-  $("main").style.display="none";
-  $("login").style.display="";
+  localStorage.removeItem("ADMIN_JWT");
+  $("main").style.display = "none";
+  $("login").style.display = "";
 }
 
-// Build collections list
+// ----- UI -----
 function initCollections(){
   const ul = $("collections");
-  ul.innerHTML="";
+  ul.innerHTML = "";
 
   const addSection = (title, list) => {
     const header = document.createElement("h4");
@@ -73,16 +75,14 @@ function initCollections(){
   addSection("Data Collections", dataCollections);
 }
 
-// Load collection data
 async function loadCollection(k){
   try{
     let res;
     if(dataCollections.includes(k)){
-      res = await api("/"+k);
+      res = await api("/" + k);
     } else {
-      res = await api("/content/"+k);
+      res = await api("/content/" + k);
     }
-
     if(!res.ok){
       $("editor").value = "// Not found. Use Save to create content.";
       $("colTitle").innerText = k;
@@ -97,33 +97,28 @@ async function loadCollection(k){
   }
 }
 
-// Save changes
 async function saveCollection(){
   const key = $("colTitle").innerText;
   if(!key) return alert("Select a collection first");
+
   let parsed;
-  try{ parsed = JSON.parse($("editor").value); }
+  try { parsed = JSON.parse($("editor").value); }
   catch(e){ return alert("Invalid JSON: " + e.message); }
 
-  let url, method;
+  let url, method = "POST";
   if(dataCollections.includes(key)){
-    url = "/"+key; method = "POST"; // Create new item
+    url = "/" + key;            // POST /services|blogs|gallery
   } else {
-    url = "/content/"+key; method = "POST";
+    url = "/content/" + key;    // POST /content/{key}
   }
 
-  const res = await api(url, {
-    method,
-    headers: {"Content-Type":"application/json"},
-    body: JSON.stringify(parsed)
-  });
+  const res = await api(url, { method, body: JSON.stringify(parsed) });
   if(!res.ok) alert("Save failed: " + res.status);
   else alert("Saved!");
 }
 
-// Run seeding from seed_data/
 async function runSeed(){
-  const res = await api("/seed", {method:"POST"});
+  const res = await api("/seed", { method: "POST" });
   if(!res.ok) alert("Seed failed: " + res.status);
   else {
     const j = await res.json();
@@ -131,11 +126,17 @@ async function runSeed(){
   }
 }
 
-// Init
 window.onload = ()=>{
   $("btnLogin").onclick = login;
   $("btnLogout").onclick = logout;
   $("btnSave").onclick = saveCollection;
   $("btnRefresh").onclick = ()=>initCollections();
   $("btnSeed").onclick = runSeed;
-}
+
+  // auto-show if token already exists
+  if (token) {
+    $("login").style.display = "none";
+    $("main").style.display = "";
+    initCollections();
+  }
+};
