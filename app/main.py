@@ -550,3 +550,12 @@ def seed_all(request: Request):
 @app.get("/")
 def root():
     return {"detail": "EvoHome backend running. Open /docs for API docs or /admin for dashboard."}
+
+# TEMP DEBUG ROUTE
+@app.get("/debug-env")
+def debug_env():
+    import os
+    return {
+        "ADMIN_EMAIL": os.getenv("ADMIN_EMAIL"),
+        "ADMIN_PASSWORD": os.getenv("ADMIN_PASSWORD")
+    }
