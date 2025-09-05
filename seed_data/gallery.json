@@ -1,108 +1,125 @@
-{
-  "file": "gallery.json",
-  "items": [
-    {
-      "id": "g1",
-      "title": "Solar Panel Installation",
-      "category": "Renewables",
-      "src": "https://images.pexels.com/photos/9875441/pexels-photo-9875441.jpeg",
-      "images": ["https://images.pexels.com/photos/9875441/pexels-photo-9875441.jpeg"],
-      "alt": "Solar panel array on roof"
-    },
-    {
-      "id": "g2",
-      "title": "Air Source Heat Pump",
-      "category": "Renewables",
-      "src": "https://images.pexels.com/photos/9875419/pexels-photo-9875419.jpeg",
-      "images": ["https://images.pexels.com/photos/9875419/pexels-photo-9875419.jpeg"],
-      "alt": "Heat pump outdoor unit"
-    },
-    {
-      "id": "g3",
-      "title": "Window Installation",
-      "category": "Improvements",
-      "src": "https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg",
-      "images": ["https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg"],
-      "alt": "New windows"
-    },
-    {
-      "id": "g4",
-      "title": "Roofing Project",
-      "category": "Improvements",
-      "src": "https://images.pexels.com/photos/3614087/pexels-photo-3614087.jpeg",
-      "images": ["https://images.pexels.com/photos/3614087/pexels-photo-3614087.jpeg"],
-      "alt": "Roofers working"
-    },
-    {
-      "id": "g5",
-      "title": "Garden Decking",
-      "category": "Garden",
-      "src": "https://images.pexels.com/photos/1396131/pexels-photo-1396131.jpeg",
-      "images": ["https://images.pexels.com/photos/1396131/pexels-photo-1396131.jpeg"],
-      "alt": "Composite decking"
-    },
-    {
-      "id": "g6",
-      "title": "Kitchen Installation",
-      "category": "Interiors",
-      "src": "https://images.pexels.com/photos/534174/pexels-photo-534174.jpeg",
-      "images": ["https://images.pexels.com/photos/534174/pexels-photo-534174.jpeg"],
-      "alt": "Modern kitchen"
-    },
-    {
-      "id": "g7",
-      "title": "Bathroom Renovation",
-      "category": "Interiors",
-      "src": "https://images.pexels.com/photos/1571457/pexels-photo-1571457.jpeg",
-      "images": ["https://images.pexels.com/photos/1571457/pexels-photo-1571457.jpeg"],
-      "alt": "Bathroom"
-    },
-    {
-      "id": "g8",
-      "title": "Driveway Paving",
-      "category": "Exteriors",
-      "src": "https://images.pexels.com/photos/6813316/pexels-photo-6813316.jpeg",
-      "images": ["https://images.pexels.com/photos/6813316/pexels-photo-6813316.jpeg"],
-      "alt": "Block paving"
-    },
-    {
-      "id": "g9",
-      "title": "External Rendering",
-      "category": "Exteriors",
-      "src": "https://images.pexels.com/photos/5806941/pexels-photo-5806941.jpeg",
-      "images": ["https://images.pexels.com/photos/5806941/pexels-photo-5806941.jpeg"],
-      "alt": "Rendering work"
-    },
-    {
-      "id": "g10",
-      "title": "Home Renovation",
-      "category": "Improvements",
-      "src": "https://images.pexels.com/photos/6474451/pexels-photo-6474451.jpeg",
-      "images": ["https://images.pexels.com/photos/6474451/pexels-photo-6474451.jpeg"],
-      "alt": "Home renovation"
-    },
-    {
-      "id": "g11",
-      "title": "Patio & Landscaping",
-      "category": "Garden",
-      "src": "https://images.pexels.com/photos/450597/pexels-photo-450597.jpeg",
-      "images": ["https://images.pexels.com/photos/450597/pexels-photo-450597.jpeg"],
-      "alt": "Patio and garden"
-    },
-    {
-      "id": "g12",
-      "title": "Front Door & Windows",
-      "category": "Improvements",
-      "src": "https://images.pexels.com/photos/7553850/pexels-photo-7553850.jpeg",
-      "images": ["https://images.pexels.com/photos/7553850/pexels-photo-7553850.jpeg"],
-      "alt": "Front door and windows"
+[
+  {
+    "title": "Modern Kitchen Renovation",
+    "category": "Kitchens",
+    "data": {
+      "images": [
+        "https://images.pexels.com/photos/534174/pexels-photo-534174.jpeg",
+        "https://images.pexels.com/photos/373548/pexels-photo-373548.jpeg"
+      ],
+      "description": "A full kitchen renovation with bespoke cabinets, marble worktops and LED lighting."
     }
-  ],
-  "cta": {
-    "title": "Ready to Start Your Project?",
-    "subtitle": "Join thousands of satisfied homeowners who've trusted EvoHome with their home improvement projects.",
-    "primaryCta": { "label": "Request Free Quote", "href": "/request-quote" },
-    "secondaryCta": { "label": "Call: 0333 004 0195", "href": "tel:03330040195" },
-    "images": []
+  },
+  {
+    "title": "Luxury Bathroom Upgrade",
+    "category": "Bathrooms",
+    "data": {
+      "images": [
+        "https://images.pexels.com/photos/1571457/pexels-photo-1571457.jpeg",
+        "https://images.pexels.com/photos/1454804/pexels-photo-1454804.jpeg"
+      ],
+      "description": "Bathroom redesign featuring a walk-in shower, freestanding tub, and underfloor heating."
+    }
+  },
+  {
+    "title": "Resin Bound Driveway",
+    "category": "Driveways",
+    "data": {
+      "images": [
+        "https://images.pexels.com/photos/6813316/pexels-photo-6813316.jpeg"
+      ],
+      "description": "A resin-bound driveway with a durable, low-maintenance finish."
+    }
+  },
+  {
+    "title": "Roof Replacement & Repairs",
+    "category": "Roofing",
+    "data": {
+      "images": [
+        "https://images.pexels.com/photos/3614087/pexels-photo-3614087.jpeg"
+      ],
+      "description": "Full roof replacement with modern tiles and high-quality waterproofing."
+    }
+  },
+  {
+    "title": "Solar Panel Installation",
+    "category": "Renewable Energy",
+    "data": {
+      "images": [
+        "https://images.pexels.com/photos/9875441/pexels-photo-9875441.jpeg"
+      ],
+      "description": "High-efficiency solar panel array installed to reduce energy bills."
+    }
+  },
+  {
+    "title": "Energy-Efficient Windows",
+    "category": "Windows & Doors",
+    "data": {
+      "images": [
+        "https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg",
+        "https://images.pexels.com/photos/7553850/pexels-photo-7553850.jpeg"
+      ],
+      "description": "uPVC windows and composite doors for improved insulation and security."
+    }
+  },
+  {
+    "title": "Garden Room Extension",
+    "category": "Garden & Outdoor",
+    "data": {
+      "images": [
+        "https://images.pexels.com/photos/1396131/pexels-photo-1396131.jpeg"
+      ],
+      "description": "A contemporary garden room with timber decking and insulated panels."
+    }
+  },
+  {
+    "title": "Interior Flooring & Tiling",
+    "category": "Interiors & Trades",
+    "data": {
+      "images": [
+        "https://images.pexels.com/photos/534151/pexels-photo-534151.jpeg"
+      ],
+      "description": "Luxury vinyl tile flooring installed for a modern living space."
+    }
+  },
+  {
+    "title": "Loft Insulation Upgrade",
+    "category": "Insulation",
+    "data": {
+      "images": [
+        "https://images.pexels.com/photos/5806941/pexels-photo-5806941.jpeg"
+      ],
+      "description": "Cavity wall and loft insulation to improve energy efficiency."
+    }
+  },
+  {
+    "title": "Patio & Landscaping",
+    "category": "Garden & Outdoor",
+    "data": {
+      "images": [
+        "https://images.pexels.com/photos/5793666/pexels-photo-5793666.jpeg"
+      ],
+      "description": "Patio paving and landscaping to create a beautiful outdoor living area."
+    }
+  },
+  {
+    "title": "Composite Decking",
+    "category": "Garden & Outdoor",
+    "data": {
+      "images": [
+        "https://images.pexels.com/photos/1396131/pexels-photo-1396131.jpeg"
+      ],
+      "description": "Maintenance-free composite decking with LED lighting."
+    }
+  },
+  {
+    "title": "Chimney & Leadwork Repairs",
+    "category": "Roofing",
+    "data": {
+      "images": [
+        "https://images.pexels.com/photos/358886/pexels-photo-358886.jpeg"
+      ],
+      "description": "Specialist chimney restoration and leadwork repairs for a heritage property."
+    }
   }
-}
+]
