@@ -170,17 +170,25 @@ def list_services():
 @app.post("/services", dependencies=[Depends(require_admin)])
 def save_services(body: Any = Body(...)):
     db=db_sess()
-    if isinstance(body,list):
+    if isinstance(body, list):
         db.query(ServiceItem).delete()
         for o in body:
-            slug=(o or {}).get("slug"); if not slug: continue
-            db.add(ServiceItem(slug=slug,name=o.get("name",""),category=o.get("category",""),data=o))
+            o = o or {}
+            slug = o.get("slug")
+            if not slug:
+                continue
+            db.add(ServiceItem(slug=slug, name=o.get("name",""), category=o.get("category",""), data=o))
         db.commit(); db.close(); return {"ok":True,"count":len(body)}
-    if isinstance(body,dict):
-        slug=body.get("slug"); if not slug: raise HTTPException(400,"slug required")
+    if isinstance(body, dict):
+        slug = body.get("slug")
+        if not slug: raise HTTPException(400,"slug required")
         row=db.query(ServiceItem).filter(ServiceItem.slug==slug).first()
-        if row: row.name=body.get("name",row.name); row.category=body.get("category",row.category); row.data=body
-        else: db.add(ServiceItem(slug=slug,name=body.get("name",""),category=body.get("category",""),data=body))
+        if row:
+            row.name = body.get("name", row.name)
+            row.category = body.get("category", row.category)
+            row.data = body
+        else:
+            db.add(ServiceItem(slug=slug, name=body.get("name",""), category=body.get("category",""), data=body))
         db.commit(); db.close(); return {"ok":True}
     raise HTTPException(400,"Invalid body")
 
@@ -194,17 +202,24 @@ def list_blogs():
 @app.post("/blogs", dependencies=[Depends(require_admin)])
 def save_blogs(body: Any = Body(...)):
     db=db_sess()
-    if isinstance(body,list):
+    if isinstance(body, list):
         db.query(BlogPost).delete()
         for o in body:
-            slug=(o or {}).get("slug"); if not slug: continue
-            db.add(BlogPost(slug=slug,title=o.get("title",""),data=o))
+            o = o or {}
+            slug = o.get("slug")
+            if not slug:
+                continue
+            db.add(BlogPost(slug=slug, title=o.get("title",""), data=o))
         db.commit(); db.close(); return {"ok":True,"count":len(body)}
-    if isinstance(body,dict):
-        slug=body.get("slug"); if not slug: raise HTTPException(400,"slug required")
+    if isinstance(body, dict):
+        slug = body.get("slug")
+        if not slug: raise HTTPException(400,"slug required")
         row=db.query(BlogPost).filter(BlogPost.slug==slug).first()
-        if row: row.title=body.get("title",row.title); row.data=body
-        else: db.add(BlogPost(slug=slug,title=body.get("title",""),data=body))
+        if row:
+            row.title = body.get("title", row.title)
+            row.data = body
+        else:
+            db.add(BlogPost(slug=slug, title=body.get("title",""), data=body))
         db.commit(); db.close(); return {"ok":True}
     raise HTTPException(400,"Invalid body")
 
@@ -218,12 +233,13 @@ def list_gallery():
 @app.post("/gallery", dependencies=[Depends(require_admin)])
 def save_gallery(body: Any = Body(...)):
     db=db_sess()
-    if isinstance(body,list):
+    if isinstance(body, list):
         db.query(GalleryItem).delete()
-        for o in body: db.add(GalleryItem(title=o.get("title",""),category=o.get("category",""),data=o))
+        for o in body:
+            db.add(GalleryItem(title=o.get("title",""), category=o.get("category",""), data=o))
         db.commit(); db.close(); return {"ok":True,"count":len(body)}
-    if isinstance(body,dict):
-        db.add(GalleryItem(title=body.get("title",""),category=body.get("category",""),data=body))
+    if isinstance(body, dict):
+        db.add(GalleryItem(title=body.get("title",""), category=body.get("category",""), data=body))
         db.commit(); db.close(); return {"ok":True}
     raise HTTPException(400,"Invalid body")
 
@@ -292,11 +308,14 @@ def seed():
                     report["errors"].append(f"{p.name}: {e}"); return
                 db.query(model).delete()
                 if name=="services":
-                    for o in arr: db.add(ServiceItem(slug=o.get("slug",""),name=o.get("name",""),category=o.get("category",""),data=o))
+                    for o in arr:
+                        db.add(ServiceItem(slug=o.get("slug",""),name=o.get("name",""),category=o.get("category",""),data=o))
                 elif name=="blogs":
-                    for o in arr: db.add(BlogPost(slug=o.get("slug",""),title=o.get("title",""),data=o))
+                    for o in arr:
+                        db.add(BlogPost(slug=o.get("slug",""),title=o.get("title",""),data=o))
                 elif name=="gallery":
-                    for o in arr: db.add(GalleryItem(title=o.get("title",""),category=o.get("category",""),data=o))
+                    for o in arr:
+                        db.add(GalleryItem(title=o.get("title",""),category=o.get("category",""),data=o))
                 report["arrays"].append({"name": name, "count": len(arr)})
 
             load_array("services", ServiceItem)
@@ -328,7 +347,7 @@ def seed():
         db.close()
     return {"ok": len(report["errors"])==0, "report": report}
 
-# ---------- Debug (so you can verify seed_data without shell) ----------
+# ---------- Debug ----------
 @app.get("/debug/seed-files", dependencies=[Depends(require_admin)])
 def debug_seed_files():
     base = pathlib.Path("seed_data")
