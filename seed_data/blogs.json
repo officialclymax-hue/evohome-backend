@@ -1,76 +1,172 @@
-{
-  "file": "blogs.json",
-  "listing": {
-    "hero": {
-      "title": "EvoHome Blog",
-      "subtitle": "Guides and insights on smart home improvements",
-      "images": []
-    },
-    "posts": [
-      {
-        "slug": "complete-guide-solar-power-uk-homes-2025",
-        "title": "Complete Guide to Solar Power for UK Homes (2025)",
-        "image": "https://images.pexels.com/photos/9875441/pexels-photo-9875441.jpeg",
-        "excerpt": "Everything you need to know before installing solar – savings, payback, grants, and more.",
-        "date": "2025-01-05",
-        "author": "EvoHome Team",
-        "images": ["https://images.pexels.com/photos/9875441/pexels-photo-9875441.jpeg"]
-      },
-      {
-        "slug": "uk-heat-pump-grant-7500-everything-you-need",
-        "title": "UK Heat Pump Grant (£7,500): Everything You Need to Know",
-        "image": "https://images.pexels.com/photos/9875419/pexels-photo-9875419.jpeg",
-        "excerpt": "Eligibility, application process and practical tips for homeowners.",
-        "date": "2025-02-01",
-        "author": "EvoHome Team",
-        "images": ["https://images.pexels.com/photos/9875419/pexels-photo-9875419.jpeg"]
-      },
-      {
-        "slug": "windows-buyers-guide-choosing-best-home",
-        "title": "Windows Buyer’s Guide: Choosing the Best for Your Home",
-        "image": "https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg",
-        "excerpt": "UPVC, aluminium, glazing ratings and what to look for.",
-        "date": "2025-02-18",
-        "author": "EvoHome Team",
-        "images": ["https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg"]
-      },
-      {
-        "slug": "future-home-heating-heat-pumps-explained",
-        "title": "The Future of Home Heating: Heat Pumps Explained",
-        "image": "https://images.pexels.com/photos/9875419/pexels-photo-9875419.jpeg",
-        "excerpt": "ASHP vs GSHP, efficiency and running costs.",
-        "date": "2025-03-02",
-        "author": "EvoHome Team",
-        "images": ["https://images.pexels.com/photos/9875419/pexels-photo-9875419.jpeg"]
+[
+  {
+    "slug": "do-solar-panels-work-in-winter-uk",
+    "title": "Do Solar Panels Work in Winter in the UK?",
+    "data": {
+      "author": "EvoHome Team",
+      "date": "2025-08-28",
+      "excerpt": "Short answer: yes. Solar still generates on cold and cloudy days — here’s how to size your system and what output to expect.",
+      "body": "<h2>Winter output vs summer</h2><p>UK PV systems generate less in winter due to shorter days and lower sun angles, but cold panels are actually more efficient. A well-specified array with south or south-west orientation still provides meaningful energy.</p><h3>How to size</h3><ul><li>Use at least 3.5–5 kWp for typical homes</li><li>Add battery storage to capture brief winter peaks</li><li>Optimise with microinverters or optimisers if shading exists</li></ul><h3>Tariffs</h3><p>Pair with off-peak EV/heat pump tariffs to shift loads and maximise savings.</p>",
+      "images": ["https://images.pexels.com/photos/9875441/pexels-photo-9875441.jpeg"],
+      "tags": ["solar", "winter", "uk"],
+      "seo": {
+        "title": "Do Solar Panels Work in Winter in the UK?",
+        "description": "Yes — PV still works in winter. Learn realistic output and smart ways to size your system.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/blog/do-solar-panels-work-in-winter-uk"
       }
-    ]
-  },
-  "posts": [
-    {
-      "slug": "complete-guide-solar-power-uk-homes-2025",
-      "title": "Complete Guide to Solar Power for UK Homes (2025)",
-      "hero": {
-        "images": ["https://images.pexels.com/photos/9875441/pexels-photo-9875441.jpeg"],
-        "overlayTitle": "Solar Power Guide 2025"
-      },
-      "contentHtml": "<h2>Introduction</h2><p>…</p><h3>How Solar Works</h3><p>…</p><h3>Costs & Savings</h3><p>…</p>",
-      "relatedArticles": [
-        {
-          "title": "Top 10 Energy-Saving Home Improvements",
-          "slug": "top-10-energy-saving-home-improvements",
-          "images": ["https://images.pexels.com/photos/5691659/pexels-photo-5691659.jpeg"]
-        },
-        {
-          "title": "The Future of Home Heating: Heat Pumps Explained",
-          "slug": "future-home-heating-heat-pumps-explained",
-          "images": ["https://images.pexels.com/photos/9875419/pexels-photo-9875419.jpeg"]
-        },
-        {
-          "title": "Windows Buyer's Guide: Choosing the Best for Your Home",
-          "slug": "windows-buyers-guide-choosing-best-home",
-          "images": ["https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg"]
-        }
-      ]
     }
-  ]
-}
+  },
+  {
+    "slug": "air-source-heat-pump-running-costs",
+    "title": "Air Source Heat Pump Running Costs Explained",
+    "data": {
+      "author": "EvoHome Team",
+      "date": "2025-08-20",
+      "excerpt": "We break down COP, tariffs and real-world costs so you know what to expect on your bills.",
+      "body": "<h2>What affects cost?</h2><p>Three things: your home’s heat loss, the pump’s seasonal COP (SCOP) and your electricity tariff.</p><h3>Key tips</h3><ul><li>Lower flow temperatures increase efficiency</li><li>Use weather compensation controls</li><li>Consider off-peak tariffs</li></ul><p>With good design, SCOP of 3.5–4.5 is achievable in UK homes.</p>",
+      "images": ["https://images.pexels.com/photos/9875419/pexels-photo-9875419.jpeg"],
+      "tags": ["heat pump", "costs", "energy"],
+      "seo": {
+        "title": "Air Source Heat Pump Running Costs Explained",
+        "description": "Understand COP, tariffs and design choices that shape real-world ASHP running costs.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/blog/air-source-heat-pump-running-costs"
+      }
+    }
+  },
+  {
+    "slug": "battery-storage-worth-it-uk",
+    "title": "Are Home Batteries Worth It in the UK?",
+    "data": {
+      "author": "EvoHome Team",
+      "date": "2025-07-30",
+      "excerpt": "Batteries let you use solar at night and shift usage to cheap off-peak rates. Here’s the ROI math.",
+      "body": "<h2>When a battery pays back</h2><p>If you have PV and evening usage, a 5–10 kWh battery often pays back in 5–9 years. Without PV, time-of-use (ToU) shifting can still work on EV/heat pump tariffs.</p><h3>Right sizing</h3><p>Match capacity to your evening kWh. Too small = frequent empty; too big = slow payback.</p>",
+      "images": [],
+      "tags": ["battery", "solar", "tariffs"],
+      "seo": {
+        "title": "Are Home Batteries Worth It in the UK?",
+        "description": "How to size batteries, use ToU tariffs and calculate realistic payback.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/blog/battery-storage-worth-it-uk"
+      }
+    }
+  },
+  {
+    "slug": "best-window-options-for-uk-homes-2025",
+    "title": "Best Window Options for UK Homes in 2025",
+    "data": {
+      "author": "EvoHome Team",
+      "date": "2025-07-12",
+      "excerpt": "uPVC vs aluminium, double vs triple glazing, and what U-values actually mean.",
+      "body": "<h2>Frame materials</h2><p>uPVC is cost-effective and insulating; aluminium offers slim sightlines and durability. Both can hit low U-values with the right spec.</p><h3>Glazing</h3><p>Modern double glazing with warm edge spacers and argon fill is often the sweet spot for cost/performance. Triple glazing helps in exposed or noisy locations.</p>",
+      "images": ["https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg"],
+      "tags": ["windows", "energy", "u-values"],
+      "seo": {
+        "title": "Best Window Options for UK Homes (2025 Guide)",
+        "description": "uPVC vs aluminium, glazing choices and picking U-values that suit your home.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/blog/best-window-options-for-uk-homes-2025"
+      }
+    }
+  },
+  {
+    "slug": "resin-vs-block-paving-driveway",
+    "title": "Resin vs Block Paving: Which Driveway Should You Choose?",
+    "data": {
+      "author": "EvoHome Team",
+      "date": "2025-06-25",
+      "excerpt": "A quick, practical comparison covering cost, maintenance and looks.",
+      "body": "<h2>Resin bound</h2><p>Permeable, smooth finish, low maintenance. Needs a solid sub-base.</p><h2>Block paving</h2><p>Classic look, individual repairs possible, more edging/detail options.</p><p>Both can last when groundwork is done correctly.</p>",
+      "images": ["https://images.pexels.com/photos/6813316/pexels-photo-6813316.jpeg"],
+      "tags": ["driveways", "resin", "block paving"],
+      "seo": {
+        "title": "Resin vs Block Paving Driveways",
+        "description": "Cost, maintenance and durability compared to help you choose.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/blog/resin-vs-block-paving-driveway"
+      }
+    }
+  },
+  {
+    "slug": "kitchen-renovation-checklist",
+    "title": "Kitchen Renovation Checklist (UK Homeowners)",
+    "data": {
+      "author": "EvoHome Team",
+      "date": "2025-06-10",
+      "excerpt": "Scope, budget, trades and timelines — a simple checklist you can print and use.",
+      "body": "<h2>Plan & measure</h2><ul><li>Define your layout and storage needs</li><li>Confirm appliance sizes</li><li>Choose worktops and splashbacks early</li></ul><h3>Key trades</h3><p>Carpentry, electrics, plumbing, plastering and flooring should be sequenced to avoid delays.</p>",
+      "images": ["https://images.pexels.com/photos/534174/pexels-photo-534174.jpeg"],
+      "tags": ["kitchens", "planning", "checklist"],
+      "seo": {
+        "title": "Kitchen Renovation Checklist (Printable)",
+        "description": "A clear step-by-step planning checklist for smooth kitchen projects.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/blog/kitchen-renovation-checklist"
+      }
+    }
+  },
+  {
+    "slug": "bathroom-waterproofing-basics",
+    "title": "Bathroom Waterproofing Basics: Avoid Costly Leaks",
+    "data": {
+      "author": "EvoHome Team",
+      "date": "2025-05-22",
+      "excerpt": "Tank it, tape it, test it. The simple rules that prevent water damage.",
+      "body": "<h2>Wet areas first</h2><p>Showers and wet rooms should be tanked with compatible boards and membranes before tiling.</p><h3>Common mistakes</h3><ul><li>No fall to drain</li><li>Wrong adhesive for large format tiles</li><li>Poor sealing around penetrations</li></ul>",
+      "images": ["https://images.pexels.com/photos/1571457/pexels-photo-1571457.jpeg"],
+      "tags": ["bathrooms", "waterproofing", "tiling"],
+      "seo": {
+        "title": "Bathroom Waterproofing Basics",
+        "description": "The right substrates, membranes and checks to avoid leaks.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/blog/bathroom-waterproofing-basics"
+      }
+    }
+  },
+  {
+    "slug": "loft-insulation-how-much-do-i-need",
+    "title": "Loft Insulation: How Much Do I Need?",
+    "data": {
+      "author": "EvoHome Team",
+      "date": "2025-05-05",
+      "excerpt": "The UK target is typically 270–300 mm. Here’s how to top up safely.",
+      "body": "<h2>Depth & ventilation</h2><p>Target 270–300 mm mineral wool. Keep eaves vents clear and use raisers over cables.</p><h3>Storage</h3><p>Add raised boarding systems to avoid compressing insulation.</p>",
+      "images": [],
+      "tags": ["insulation", "loft", "energy"],
+      "seo": {
+        "title": "Loft Insulation: How Much Do I Need?",
+        "description": "Recommended depths, safe installation and storage tips for UK homes.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/blog/loft-insulation-how-much-do-i-need"
+      }
+    }
+  },
+  {
+    "slug": "mvhr-vs-extractor-fans",
+    "title": "MVHR vs Extractor Fans: Which Ventilation Is Right for You?",
+    "data": {
+      "author": "EvoHome Team",
+      "date": "2025-04-18",
+      "excerpt": "Older leaky homes can get by with fans; modern airtight homes thrive with MVHR.",
+      "body": "<h2>Extractor fans</h2><p>Simple and cheap, best for specific rooms.</p><h2>MVHR</h2><p>Whole-home fresh air with heat recovery — ideal for new builds and retrofits aiming for low heat loss.</p>",
+      "images": [],
+      "tags": ["ventilation", "mvhr", "indoor air quality"],
+      "seo": {
+        "title": "MVHR vs Extractor Fans",
+        "description": "A quick guide to choosing the right ventilation strategy for your property.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/blog/mvhr-vs-extractor-fans"
+      }
+    }
+  },
+  {
+    "slug": "garden-rooms-permitted-development-uk",
+    "title": "Garden Rooms & Permitted Development in the UK",
+    "data": {
+      "author": "EvoHome Team",
+      "date": "2025-04-02",
+      "excerpt": "Most garden rooms don’t need planning if you follow the rules. Here’s the plain-English version.",
+      "body": "<h2>Heights & placement</h2><p>Keep within height limits and away from boundaries for PD compliance. Outbuildings must be incidental to the dwelling.</p><p>Always check local guidance and consult planners for unusual plots or listed buildings.</p>",
+      "images": [],
+      "tags": ["garden rooms", "planning", "permitted development"],
+      "seo": {
+        "title": "Garden Rooms & Permitted Development (UK)",
+        "description": "Understand heights, usage and placement rules to stay within PD rights.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/blog/garden-rooms-permitted-development-uk"
+      }
+    }
+  }
+]
