@@ -274,4 +274,139 @@ async function loadPage(){
 }
 
 $("btnSavePage").onclick = async ()=>{
-  const res = await api("/pages/"+
+  const res = await api("/pages/"+currentPageSlug, {method:"POST", body: JSON.stringify({blocks})});
+  alert(res.ok ? "Page saved!" : "Save failed: "+res.status);
+  loadPages();
+};
+
+function renderCanvas(){
+  const c = $("canvas");
+  c.innerHTML = "";
+  c.toggleAttribute("data-empty", blocks.length===0);
+  blocks.forEach((b, idx)=>{
+    const row = document.createElement("div");
+    row.className = "block"; row.setAttribute("draggable","true"); row.dataset.index = idx;
+
+    const title = document.createElement("div");
+    title.className = "b-title";
+    title.textContent = (BLOCK_DEFS[b.type]?.label) || b.type;
+
+    const actions = document.createElement("div");
+    actions.className = "b-actions";
+    const up = btn("↑", ()=> moveBlock(idx, idx-1));
+    const down = btn("↓", ()=> moveBlock(idx, idx+1));
+    const edit = btn("Edit", ()=> openInspector(idx));
+    const del = btn("Delete", ()=> { blocks.splice(idx,1); renderCanvas(); });
+    actions.append(up,down,edit,del);
+
+    row.append(title, actions);
+    c.appendChild(row);
+  });
+
+  enableDnD(c, (from,to)=>{
+    if (to < 0 || to >= blocks.length) return;
+    const [x] = blocks.splice(from,1); blocks.splice(to,0,x);
+    renderCanvas();
+  });
+}
+
+function moveBlock(from,to){
+  if (to < 0 || to >= blocks.length) return;
+  const [x] = blocks.splice(from,1); blocks.splice(to,0,x);
+  renderCanvas();
+}
+
+function openInspector(idx){
+  const block = blocks[idx];
+  const def = BLOCK_DEFS[block.type] || {fields:{}};
+  const form = $("inspectorForm"); form.innerHTML = "";
+  form.dataset.index = idx;
+
+  Object.entries(def.fields).forEach(([k,f])=>{
+    form.appendChild(fieldFor(block, k, f));
+  });
+
+  // helpers
+  function fieldFor(b, key, f){
+    const wrap = el('div','field'); wrap.append(el('label',null,(f.label||key)));
+    if (f.type === "textarea"){
+      const ta = document.createElement("textarea"); ta.value = b.props[key] || ""; ta.oninput = ()=>{ b.props[key] = ta.value; };
+      wrap.append(ta);
+    } else if (f.type === "number"){
+      const inp = document.createElement("input"); inp.type="number"; inp.value = b.props[key] ?? 0; inp.oninput=()=>{ b.props[key] = Number(inp.value||0); };
+      wrap.append(inp);
+    } else if (f.type === "image"){
+      const row = el('div','kv');
+      const inp = document.createElement("input"); inp.type="text"; inp.value = b.props[key] || ""; inp.oninput=()=>{ b.props[key] = inp.value; };
+      const up = btn("Upload", ()=> openUpload(url=>{ inp.value=url; b.props[key]=url; }));
+      row.append(inp, up); wrap.append(row);
+    } else if (f.type === "images"){
+      const cont = document.createElement("div"); cont.style.display="grid"; cont.style.gridTemplateColumns="repeat(auto-fill,minmax(120px,1fr))"; cont.style.gap="8px";
+      b.props[key] = Array.isArray(b.props[key]) ? b.props[key] : [];
+      b.props[key].forEach((url,i)=>{
+        const box=el('div'); const img=el('img'); img.src=url; img.style.width="100%"; img.style.height="80px"; img.style.objectFit="cover"; img.style.borderRadius="8px";
+        const inp = document.createElement("input"); inp.type="text"; inp.value=url; inp.oninput = ()=>{ b.props[key][i]=inp.value; };
+        const row = el('div','row'); const up = btn('↑',()=>{ if(i>0){ const [x]=b.props[key].splice(i,1); b.props[key].splice(i-1,0,x); openInspector(idx); }});
+        const down = btn('↓',()=>{ if(i<b.props[key].length-1){ const [x]=b.props[key].splice(i,1); b.props[key].splice(i+1,0,x); openInspector(idx); }});
+        const del = btn('Delete',()=>{ b.props[key].splice(i,1); openInspector(idx); }); del.className="ghost";
+        row.append(up,down,del); box.append(img, inp, row); cont.append(box);
+      });
+      const add = btn('+ Add image', ()=>{ const url=prompt("Paste image URL, or leave blank to upload"); if(url){ b.props[key].push(url); openInspector(idx);} else openUpload(u=>{ b.props[key].push(u); openInspector(idx); }); });
+      wrap.append(cont, add);
+    } else if (f.type === "list" && f.item === "qa"){
+      b.props[key] = Array.isArray(b.props[key]) ? b.props[key] : [];
+      const cont = document.createElement("div");
+      b.props[key].forEach((qa,i)=>{
+        const row = el('div','field');
+        row.append(field("Q", qa.q||"", v=>{ qa.q=v; }), textArea("A", qa.a||"", v=>{ qa.a=v; }));
+        const del = btn("Delete", ()=>{ b.props[key].splice(i,1); openInspector(idx); }); del.classList.add("del"); row.append(del);
+        cont.append(row);
+      });
+      const add = btn("+ Add QA", ()=>{ b.props[key].push({q:"",a:""}); openInspector(idx); });
+      wrap.append(cont, add);
+    } else if (f.type === "list" && f.item === "text"){
+      b.props[key] = Array.isArray(b.props[key]) ? b.props[key] : [];
+      const ul = document.createElement("div");
+      b.props[key].forEach((t,i)=>{
+        const row = el('div','kv');
+        const inp = document.createElement("input"); inp.type="text"; inp.value=t; inp.oninput=()=>{ b.props[key][i]=inp.value; };
+        const del = btn("Delete", ()=>{ b.props[key].splice(i,1); openInspector(idx); });
+        ul.append(inp, del);
+      });
+      const add = btn("+ Add item", ()=>{ b.props[key].push(""); openInspector(idx); });
+      wrap.append(ul, add);
+    } else if (f.type === "list" && f.item === "testimonial"){
+      b.props[key] = Array.isArray(b.props[key]) ? b.props[key] : [];
+      const cont = document.createElement("div");
+      b.props[key].forEach((t,i)=>{
+        const card = el('div','field');
+        card.append(field("Quote", t.quote||"", v=>{ t.quote=v; }),
+                    field("Author", t.author||"", v=>{ t.author=v; }),
+                    field("Role", t.role||"", v=>{ t.role=v; }),
+                    field("Image", t.image||"", v=>{ t.image=v; }, true, u=>{ t.image=u; }));
+        const del = btn("Delete", ()=>{ b.props[key].splice(i,1); openInspector(idx); }); del.classList.add("del");
+        card.append(del); cont.append(card);
+      });
+      const add = btn("+ Add testimonial", ()=>{ b.props[key].push({quote:"",author:"",role:"",image:""}); openInspector(idx); });
+      wrap.append(cont, add);
+    } else if (f.type === "list" && f.item === "serviceRef"){
+      b.props[key] = Array.isArray(b.props[key]) ? b.props[key] : [];
+      const cont = document.createElement("div");
+      b.props[key].forEach((srv,i)=>{
+        const row = el('div','kv');
+        const inp = document.createElement("input"); inp.type="text"; inp.placeholder="service slug"; inp.value=srv.slug||srv; inp.oninput=()=>{ b.props[key][i]={slug:inp.value}; };
+        const del = btn("Delete", ()=>{ b.props[key].splice(i,1); openInspector(idx); });
+        row.append(inp, del); cont.append(row);
+      });
+      const add = btn("+ Add service", ()=>{ b.props[key].push({slug:""}); openInspector(idx); });
+      wrap.append(cont, add);
+    } else {
+      const inp = document.createElement("input"); inp.type="text"; inp.value=b.props[key]||""; inp.oninput=()=>{ b.props[key]=inp.value; };
+      wrap.append(inp);
+    }
+    return wrap;
+  }
+}
+
+// auto-login view
+if (token) { $("loginView").style.display="none"; $("appView").style.display="grid"; buildLists(); loadPages(); }
