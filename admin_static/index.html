@@ -10,6 +10,7 @@
   <header class="bar">
     <div class="brand">EvoHome Admin</div>
     <div class="bar-actions">
+      <button id="btnBuilder" class="ghost">Page Builder</button>
       <button id="btnSeed" class="ghost">Seed</button>
       <button id="btnLogout">Logout</button>
     </div>
@@ -24,7 +25,7 @@
     <div id="loginMsg" class="muted"></div>
   </main>
 
-  <!-- APP -->
+  <!-- CMS VIEW -->
   <main id="appView" class="grid" style="display:none;">
     <aside class="sidebar">
       <h3>Collections</h3>
@@ -39,8 +40,8 @@
       <div class="workspace-head">
         <h2 id="colTitle">Select a collection</h2>
         <div class="head-actions">
-          <button id="modeEasy" class="primary small" title="Owner-friendly view">Easy mode</button>
-          <button id="modeJson" class="small" title="Raw JSON">JSON mode</button>
+          <button id="modeEasy" class="primary small">Easy mode</button>
+          <button id="modeJson" class="small">JSON mode</button>
           <button id="btnExport" class="ghost small">Export</button>
           <label class="ghost small file-label">Import
             <input type="file" id="fileImport" accept="application/json" hidden />
@@ -50,15 +51,9 @@
 
       <!-- EASY MODE -->
       <div id="easyMode" style="display:none;">
-        <!-- Singletons form -->
         <form id="formSingleton" class="form" style="display:none;"></form>
-
-        <!-- Arrays: services/blogs -->
         <div id="cardsList" class="cards"></div>
-
-        <!-- Array: gallery grid -->
         <div id="galleryGrid" class="grid-gallery"></div>
-
         <div class="row actions">
           <button id="btnAddItem" class="ghost" style="display:none;">+ Add item</button>
           <button id="btnSaveEasy" class="primary">Save</button>
@@ -67,13 +62,43 @@
 
       <!-- JSON MODE -->
       <textarea id="jsonBox" class="jsonbox" spellcheck="false" placeholder="// Not found. Use Save to create content."></textarea>
-      <div class="row actions">
-        <button id="btnSaveJson" class="primary">Save content</button>
+      <div class="row actions"><button id="btnSaveJson" class="primary">Save content</button></div>
+    </section>
+  </main>
+
+  <!-- PAGE BUILDER VIEW -->
+  <main id="builderView" class="grid" style="display:none;">
+    <aside class="sidebar">
+      <h3>Pages</h3>
+      <div class="row">
+        <input id="pageSlug" placeholder="homepage" />
+        <button id="btnLoadPage" class="ghost small">Load</button>
+      </div>
+      <div class="sectionTitle">Saved Pages</div>
+      <ul id="listPages"></ul>
+      <div class="sectionTitle">Palette</div>
+      <div id="palette"></div>
+    </aside>
+
+    <section class="workspace">
+      <div class="workspace-head">
+        <h2>Builder: <span id="builderTitle">homepage</span></h2>
+        <div class="head-actions">
+          <button id="btnSavePage" class="primary small">Save page</button>
+        </div>
+      </div>
+
+      <div class="builder">
+        <div id="canvas" class="canvas" data-empty="Drag blocks here"></div>
+        <div id="inspector" class="inspector">
+          <h3>Block settings</h3>
+          <form id="inspectorForm"></form>
+        </div>
       </div>
     </section>
   </main>
 
-  <!-- SEED MODAL -->
+  <!-- SEED + UPLOAD DIALOGS -->
   <dialog id="seedDlg" class="dialog">
     <h3>Seeding</h3>
     <p>This imports from <code>seed_data/</code> (if present) or loads defaults.</p>
@@ -82,7 +107,6 @@
     <div class="row right"><button id="closeSeed">Close</button></div>
   </dialog>
 
-  <!-- UPLOAD MODAL (re-used) -->
   <dialog id="uploadDlg" class="dialog">
     <h3>Upload Image</h3>
     <input type="file" id="fileUpload" />
