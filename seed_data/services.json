@@ -1,197 +1,697 @@
-{
-  "file": "services.json",
-  "landing": {
-    "seo": {
-      "title": "Home Improvement Services Hampshire, Surrey, Sussex | EvoHome Improvements",
-      "description": "Professional home improvement services with 100% homeowner protection. Free quotes from vetted specialists across Southern England.",
-      "keywords": "home improvement services, Hampshire, Surrey, Sussex, Dorset, Wiltshire, solar power, heat pumps, windows, roofing, kitchens, bathrooms, driveways, insulation",
-      "canonical": "https://evohomeimprovements.co.uk/services"
-    },
-    "hero": {
-      "title": "Home Improvement Services",
-      "subtitle": "At EvoHome Improvements, we take the stress out of home improvement. Whether you're investing in renewable energy, upgrading your interior, or giving your garden a makeover, we make the process simple, smooth, and tailored to you.",
-      "supporting": "We're not a directory—you don't just get a list of names. We work closely with you to understand your goals, match you with trusted professionals, and stay involved every step of the way to ensure high standards and fair pricing.",
-      "images": []
-    },
-    "whatToExpect": [
-      "Free, impartial advice to help you explore your options",
-      "Vetted and trusted professionals with proven craftsmanship",
-      "Fair, competitive pricing with no hidden costs",
-      "Dedicated project oversight and quality control",
-      "100% homeowner protection throughout"
-    ]
-  },
-  "categories": [
-    "Renewable Energy",
-    "Windows & Doors",
-    "Roofing & Roofline",
-    "Kitchens",
-    "Bathrooms",
-    "Driveways & Paving",
-    "Insulation & Rendering",
-    "Garden & Outdoor",
-    "Interiors & Trades",
-    "Property Maintenance"
-  ],
-  "catalogue": [
-    { "slug": "solar-power", "name": "Solar Power", "category": "Renewable Energy", "images": ["https://images.pexels.com/photos/9875441/pexels-photo-9875441.jpeg"] },
-    { "slug": "air-source-heat-pump", "name": "Air Source Heat Pump", "category": "Renewable Energy", "images": ["https://images.pexels.com/photos/9875419/pexels-photo-9875419.jpeg"] },
-    { "slug": "ground-source-heat-pump", "name": "Ground Source Heat Pump", "category": "Renewable Energy", "images": [] },
-    { "slug": "battery-storage", "name": "Battery Storage", "category": "Renewable Energy", "images": [] },
-    { "slug": "ev-chargers", "name": "Electric Vehicle Chargers", "category": "Renewable Energy", "images": [] },
-    { "slug": "solar-assisted-heat-pump", "name": "Solar Assisted Water Heat Pump", "category": "Renewable Energy", "images": ["https://images.pexels.com/photos/9875419/pexels-photo-9875419.jpeg"] },
-    { "slug": "infrared-heating", "name": "Infrared Heating", "category": "Renewable Energy", "images": [] },
-    { "slug": "mvhr", "name": "Mechanical Ventilation Heat Recovery (MVHR)", "category": "Renewable Energy", "images": [] },
-
-    { "slug": "upvc-windows", "name": "uPVC Windows", "category": "Windows & Doors", "images": ["https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg"] },
-    { "slug": "composite-doors", "name": "Composite Doors", "category": "Windows & Doors", "images": ["https://images.pexels.com/photos/7553850/pexels-photo-7553850.jpeg"] },
-    { "slug": "aluminium-bi-folds", "name": "Aluminium Bi-Folds", "category": "Windows & Doors", "images": [] },
-    { "slug": "skylights-roof-windows", "name": "Skylights & Roof Windows", "category": "Windows & Doors", "images": [] },
-    { "slug": "conservatories-orangeries", "name": "Conservatories & Orangeries", "category": "Windows & Doors", "images": [] },
-
-    { "slug": "roofing-repairs", "name": "Roofing & Repairs", "category": "Roofing & Roofline", "images": [] },
-    { "slug": "fascias-soffits-guttering", "name": "Fascias, Soffits & Guttering", "category": "Roofing & Roofline", "images": [] },
-    { "slug": "cladding-rendering", "name": "Cladding & Rendering", "category": "Roofing & Roofline", "images": [] },
-    { "slug": "new-roofs", "name": "New Roof Replacements", "category": "Roofing & Roofline", "images": [] },
-    { "slug": "chimney-leadwork", "name": "Chimney Works & Leadwork", "category": "Roofing & Roofline", "images": [] },
-
-    { "slug": "kitchens-complete", "name": "Complete Kitchens", "category": "Kitchens", "images": [] },
-    { "slug": "kitchen-worktops", "name": "Kitchen Worktops", "category": "Kitchens", "images": [] },
-    { "slug": "kitchen-storage-upgrades", "name": "Kitchen Storage & Upgrades", "category": "Kitchens", "images": [] },
-
-    { "slug": "bathrooms-complete", "name": "Complete Bathrooms", "category": "Bathrooms", "images": [] },
-    { "slug": "shower-rooms-wet-rooms", "name": "Shower Rooms & Wet Rooms", "category": "Bathrooms", "images": [] },
-    { "slug": "bathroom-design-tiling", "name": "Bathroom Design & Tiling", "category": "Bathrooms", "images": [] },
-
-    { "slug": "driveways-paving", "name": "Driveways & Paving", "category": "Driveways & Paving", "images": [] },
-    { "slug": "patios-pathways", "name": "Patios & Pathways", "category": "Driveways & Paving", "images": [] },
-    { "slug": "block-paving", "name": "Block Paving", "category": "Driveways & Paving", "images": [] },
-    { "slug": "resin-bound-driveways", "name": "Resin Bound Driveways", "category": "Driveways & Paving", "images": [] },
-    { "slug": "tarmac-concrete", "name": "Tarmac & Concrete Drives", "category": "Driveways & Paving", "images": [] },
-
-    { "slug": "loft-insulation", "name": "Loft Insulation", "category": "Insulation & Rendering", "images": [] },
-    { "slug": "cavity-wall-insulation", "name": "Cavity Wall Insulation", "category": "Insulation & Rendering", "images": [] },
-    { "slug": "solid-wall-insulation", "name": "Solid Wall Insulation", "category": "Insulation & Rendering", "images": [] },
-    { "slug": "internal-external-rendering", "name": "Internal & External Rendering", "category": "Insulation & Rendering", "images": [] },
-
-    { "slug": "composite-decking", "name": "Composite Decking", "category": "Garden & Outdoor", "images": ["https://images.pexels.com/photos/1396131/pexels-photo-1396131.jpeg"] },
-    { "slug": "grass-turfing", "name": "Grass & Turfing", "category": "Garden & Outdoor", "images": [] },
-    { "slug": "garden-design-landscaping", "name": "Garden Design & Landscaping", "category": "Garden & Outdoor", "images": [] },
-    { "slug": "garden-fencing-gates", "name": "Garden Fencing & Gates", "category": "Garden & Outdoor", "images": [] },
-    { "slug": "garden-lighting-electrics", "name": "Garden Lighting & Electrics", "category": "Garden & Outdoor", "images": [] },
-
-    { "slug": "garden-rooms-studios", "name": "Garden Rooms & Studios", "category": "Garden & Outdoor", "images": [] },
-    { "slug": "summerhouses-timber-structures", "name": "Summerhouses & Timber Structures", "category": "Garden & Outdoor", "images": [] },
-    { "slug": "pergolas-covered-spaces", "name": "Pergolas & Covered Spaces", "category": "Garden & Outdoor", "images": [] },
-
-    { "slug": "plastering-rendering", "name": "Plastering & Rendering", "category": "Interiors & Trades", "images": [] },
-    { "slug": "carpentry-joinery", "name": "Carpentry & Joinery", "category": "Interiors & Trades", "images": [] },
-    { "slug": "electrical-lighting", "name": "Electrical & Lighting", "category": "Interiors & Trades", "images": [] },
-    { "slug": "plumbing-heating", "name": "Plumbing & Heating", "category": "Interiors & Trades", "images": [] },
-    { "slug": "flooring-tiling", "name": "Flooring & Tiling", "category": "Interiors & Trades", "images": [] },
-
-    { "slug": "handyman-services", "name": "Handyman Services", "category": "Property Maintenance", "images": [] },
-    { "slug": "emergency-repairs", "name": "Emergency Repairs", "category": "Property Maintenance", "images": [] },
-    { "slug": "seasonal-services", "name": "Seasonal Services", "category": "Property Maintenance", "images": [] }
-  ],
-
-  "detailed": [
-    {
-      "slug": "solar-assisted-heat-pump",
-      "name": "Solar Assisted Water Heat Pump",
-      "shortDescription": "Heats water day and night using solar energy and heat pump technology.",
-      "longDescription": "A Solar Assisted Heat Pump (SAHP) efficiently heats water day and night using solar energy and heat pump technology.",
-      "averageSavings": "£800/year",
-      "grant": "BUS Grant Available",
-      "images": ["https://images.pexels.com/photos/9875419/pexels-photo-9875419.jpeg"],
-      "howItWorksSteps": [
-        "Solar panel captures ambient energy",
-        "Heat pump extracts heat efficiently",
-        "Hot water cylinder stores for use"
-      ],
-      "faqs": [
-        { "q": "Is a SAHP effective in winter?", "a": "Yes, the heat pump works efficiently even with low ambient temperatures." }
-      ],
+[
+  {
+    "slug": "solar-power",
+    "name": "Solar Power",
+    "category": "Renewable Energy",
+    "data": {
+      "summary": "High-efficiency solar PV systems designed for UK roofs with smart monitoring.",
+      "images": ["https://images.pexels.com/photos/9875441/pexels-photo-9875441.jpeg"],
       "seo": {
-        "title": "Solar Assisted Water Heat Pump Installation Hampshire, Surrey, Sussex | EvoHome Improvements",
-        "description": "Professional SAHP installation across Hampshire, Surrey, Sussex, Dorset & Wiltshire. Free quotes from vetted specialists.",
-        "canonicalBase": "https://evohomeimprovements.co.uk/services/solar-assisted-heat-pump"
-      }
-    },
-    {
-      "slug": "windows-doors",
-      "name": "Windows & Doors",
-      "shortDescription": "Energy-efficient windows & secure doors.",
-      "longDescription": "High-performance windows and doors that improve efficiency, security and kerb appeal.",
-      "images": [
-        "https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg",
-        "https://images.pexels.com/photos/7553850/pexels-photo-7553850.jpeg"
-      ],
-      "seo": {
-        "title": "Windows & Doors Installation Hampshire, Surrey, Sussex | EvoHome Improvements",
-        "description": "Professional windows and doors across Hampshire, Surrey, Sussex, Dorset & Wiltshire.",
-        "canonicalBase": "https://evohomeimprovements.co.uk/services/windows-doors"
-      }
-    },
-    {
-      "slug": "roofing",
-      "name": "Roofing & Roofline",
-      "shortDescription": "Repairs, replacements, roofline & leadwork.",
-      "longDescription": "From repairs to full roof replacements, including fascias, soffits and guttering.",
-      "images": ["https://images.pexels.com/photos/3614087/pexels-photo-3614087.jpeg"],
-      "seo": {
-        "title": "Roofing Installation Hampshire, Surrey, Sussex | EvoHome Improvements",
-        "description": "Trusted roofing specialists with quality control and warranties.",
-        "canonicalBase": "https://evohomeimprovements.co.uk/services/roofing"
-      }
-    },
-    {
-      "slug": "kitchens",
-      "name": "Kitchens",
-      "shortDescription": "Design, supply & installation.",
-      "longDescription": "Bespoke kitchen design and installation tailored to your home.",
-      "images": ["https://images.pexels.com/photos/534174/pexels-photo-534174.jpeg"],
-      "seo": {
-        "title": "Kitchen Installation Hampshire, Surrey, Sussex | EvoHome Improvements",
-        "description": "Complete kitchens, worktops and storage upgrades.",
-        "canonicalBase": "https://evohomeimprovements.co.uk/services/kitchens"
-      }
-    },
-    {
-      "slug": "bathrooms",
-      "name": "Bathrooms",
-      "shortDescription": "Luxury bathrooms, showers & wet rooms.",
-      "longDescription": "End-to-end bathroom design and installation, including tiling and plumbing.",
-      "images": ["https://images.pexels.com/photos/1571457/pexels-photo-1571457.jpeg"],
-      "seo": {
-        "title": "Bathroom Installation Hampshire, Surrey, Sussex | EvoHome Improvements",
-        "description": "Complete bathrooms, shower rooms and tiling.",
-        "canonicalBase": "https://evohomeimprovements.co.uk/services/bathrooms"
-      }
-    },
-    {
-      "slug": "driveways",
-      "name": "Driveways",
-      "shortDescription": "Block, resin, tarmac & concrete.",
-      "longDescription": "Professional driveways and paving with durable finishes.",
-      "images": ["https://images.pexels.com/photos/6813316/pexels-photo-6813316.jpeg"],
-      "seo": {
-        "title": "Driveway Installation Hampshire, Surrey, Sussex | EvoHome Improvements",
-        "description": "Block paving, resin, tarmac and concrete drives.",
-        "canonicalBase": "https://evohomeimprovements.co.uk/services/driveways"
-      }
-    },
-    {
-      "slug": "insulation-rendering",
-      "name": "Insulation & Rendering",
-      "shortDescription": "Loft, wall insulation & rendering.",
-      "longDescription": "Improve comfort and efficiency with loft & wall insulation and quality rendering.",
-      "images": ["https://images.pexels.com/photos/5806941/pexels-photo-5806941.jpeg"],
-      "seo": {
-        "title": "Insulation & Rendering Hampshire, Surrey, Sussex | EvoHome Improvements",
-        "description": "Loft, cavity and solid wall insulation plus rendering.",
-        "canonicalBase": "https://evohomeimprovements.co.uk/services/insulation-rendering"
+        "title": "Solar Panel Installation | Hampshire, Surrey, Sussex",
+        "description": "MCS-certified solar panel installation with warranties and competitive pricing.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/services/solar-power"
       }
     }
-  ]
-}
+  },
+  {
+    "slug": "air-source-heat-pump",
+    "name": "Air Source Heat Pump",
+    "category": "Renewable Energy",
+    "data": {
+      "summary": "Low-carbon heating with high SCOP performance and Boiler Upgrade Scheme eligibility.",
+      "images": ["https://images.pexels.com/photos/9875419/pexels-photo-9875419.jpeg"],
+      "seo": {
+        "title": "Air Source Heat Pump Installation | Hampshire & Surrounding",
+        "description": "Supply and install ASHPs with design, commissioning and aftercare.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/services/air-source-heat-pump"
+      }
+    }
+  },
+  {
+    "slug": "ground-source-heat-pump",
+    "name": "Ground Source Heat Pump",
+    "category": "Renewable Energy",
+    "data": {
+      "summary": "Ultra-efficient ground loops or boreholes for steady, low-cost heating.",
+      "images": [],
+      "seo": {
+        "title": "Ground Source Heat Pump Installation | EvoHome",
+        "description": "Design and installation of GSHP systems including loop design and controls.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/services/ground-source-heat-pump"
+      }
+    }
+  },
+  {
+    "slug": "battery-storage",
+    "name": "Battery Storage",
+    "category": "Renewable Energy",
+    "data": {
+      "summary": "Store daytime solar to use at night and optimise off-peak tariffs.",
+      "images": [],
+      "seo": {
+        "title": "Home Battery Storage | EvoHome",
+        "description": "Lithium battery systems integrated with solar PV and smart tariffs.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/services/battery-storage"
+      }
+    }
+  },
+  {
+    "slug": "ev-chargers",
+    "name": "Electric Vehicle Chargers",
+    "category": "Renewable Energy",
+    "data": {
+      "summary": "Smart EV charge points with load balancing and app control.",
+      "images": [],
+      "seo": {
+        "title": "EV Charger Installation | Hampshire & Surrounding",
+        "description": "OZEV-compliant EV home chargers with neat installs and smart control.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/services/ev-chargers"
+      }
+    }
+  },
+  {
+    "slug": "solar-assisted-heat-pump",
+    "name": "Solar Assisted Water Heat Pump",
+    "category": "Renewable Energy",
+    "data": {
+      "summary": "Heats water day and night using solar energy and heat pump technology.",
+      "images": ["https://images.pexels.com/photos/9875419/pexels-photo-9875419.jpeg"],
+      "seo": {
+        "title": "Solar Assisted Water Heat Pump | EvoHome",
+        "description": "Efficient hot water with SAHP — design, install and warranty.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/services/solar-assisted-heat-pump"
+      }
+    }
+  },
+  {
+    "slug": "infrared-heating",
+    "name": "Infrared Heating",
+    "category": "Renewable Energy",
+    "data": {
+      "summary": "Sleek wall/ceiling IR panels delivering fast radiant heat where needed.",
+      "images": [],
+      "seo": {
+        "title": "Infrared Heating Panels | EvoHome",
+        "description": "Low-profile IR panel heating with controls and zoning.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/services/infrared-heating"
+      }
+    }
+  },
+  {
+    "slug": "mvhr",
+    "name": "Mechanical Ventilation Heat Recovery (MVHR)",
+    "category": "Renewable Energy",
+    "data": {
+      "summary": "Whole-home fresh air with heat recovery for healthier, efficient properties.",
+      "images": [],
+      "seo": {
+        "title": "MVHR Systems | Supply & Install",
+        "description": "Balanced ventilation systems with heat recovery for better air quality.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/services/mvhr"
+      }
+    }
+  },
+
+  {
+    "slug": "upvc-windows",
+    "name": "uPVC Windows",
+    "category": "Windows & Doors",
+    "data": {
+      "summary": "A-rated glazing with secure locks and low maintenance frames.",
+      "images": ["https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg"],
+      "seo": {
+        "title": "uPVC Windows | Supply & Fit",
+        "description": "Energy-efficient uPVC windows with professional installation.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/services/upvc-windows"
+      }
+    }
+  },
+  {
+    "slug": "composite-doors",
+    "name": "Composite Doors",
+    "category": "Windows & Doors",
+    "data": {
+      "summary": "High-security composite front and back doors in modern styles.",
+      "images": ["https://images.pexels.com/photos/7553850/pexels-photo-7553850.jpeg"],
+      "seo": {
+        "title": "Composite Doors | EvoHome",
+        "description": "Secure, stylish composite doors with multi-point locking.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/services/composite-doors"
+      }
+    }
+  },
+  {
+    "slug": "aluminium-bi-folds",
+    "name": "Aluminium Bi-Fold Doors",
+    "category": "Windows & Doors",
+    "data": {
+      "summary": "Slimline aluminium bi-folds with smooth operation and great U-values.",
+      "images": [],
+      "seo": {
+        "title": "Aluminium Bi-Folds | Supply & Install",
+        "description": "Open up your space with thermally broken aluminium bi-folds.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/services/aluminium-bi-folds"
+      }
+    }
+  },
+  {
+    "slug": "skylights-roof-windows",
+    "name": "Skylights & Roof Windows",
+    "category": "Windows & Doors",
+    "data": {
+      "summary": "VELUX and flat rooflights for brighter lofts and kitchens.",
+      "images": [],
+      "seo": {
+        "title": "Skylights & Roof Windows | EvoHome",
+        "description": "Rooflights supplied and installed with neat internal finishes.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/services/skylights-roof-windows"
+      }
+    }
+  },
+  {
+    "slug": "conservatories-orangeries",
+    "name": "Conservatories & Orangeries",
+    "category": "Windows & Doors",
+    "data": {
+      "summary": "Warm roof upgrades and new builds for year-round comfort.",
+      "images": [],
+      "seo": {
+        "title": "Conservatories & Orangeries | EvoHome",
+        "description": "Design and build conservatories with efficient roofing systems.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/services/conservatories-orangeries"
+      }
+    }
+  },
+
+  {
+    "slug": "roofing-repairs",
+    "name": "Roofing & Repairs",
+    "category": "Roofing & Roofline",
+    "data": {
+      "summary": "From slipped tiles to leak tracing and waterproofing.",
+      "images": ["https://images.pexels.com/photos/3614087/pexels-photo-3614087.jpeg"],
+      "seo": {
+        "title": "Roof Repairs | EvoHome",
+        "description": "Fast, reliable roofing repairs and maintenance.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/services/roofing-repairs"
+      }
+    }
+  },
+  {
+    "slug": "fascias-soffits-guttering",
+    "name": "Fascias, Soffits & Guttering",
+    "category": "Roofing & Roofline",
+    "data": {
+      "summary": "uPVC and aluminium roofline systems with clean detailing.",
+      "images": [],
+      "seo": {
+        "title": "Fascias, Soffits & Guttering | EvoHome",
+        "description": "Long-lasting roofline replacements and repairs.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/services/fascias-soffits-guttering"
+      }
+    }
+  },
+  {
+    "slug": "cladding-rendering",
+    "name": "Cladding & Rendering",
+    "category": "Roofing & Roofline",
+    "data": {
+      "summary": "Modernise exteriors with weather-resistant cladding and render.",
+      "images": [],
+      "seo": {
+        "title": "Cladding & Rendering | EvoHome",
+        "description": "External finishes to refresh and protect your home.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/services/cladding-rendering"
+      }
+    }
+  },
+  {
+    "slug": "new-roofs",
+    "name": "New Roof Replacements",
+    "category": "Roofing & Roofline",
+    "data": {
+      "summary": "Full re-roofing with tile, slate or flat roofing systems.",
+      "images": [],
+      "seo": {
+        "title": "New Roof Installation | EvoHome",
+        "description": "Complete re-roof projects with guarantees and building control.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/services/new-roofs"
+      }
+    }
+  },
+  {
+    "slug": "chimney-leadwork",
+    "name": "Chimney Works & Leadwork",
+    "category": "Roofing & Roofline",
+    "data": {
+      "summary": "Repointing, flashings, trays and chimney stack repairs.",
+      "images": [],
+      "seo": {
+        "title": "Chimney & Leadwork | EvoHome",
+        "description": "Expert chimney repairs and high-quality leadwork.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/services/chimney-leadwork"
+      }
+    }
+  },
+
+  {
+    "slug": "kitchens-complete",
+    "name": "Complete Kitchens",
+    "category": "Kitchens",
+    "data": {
+      "summary": "Design, supply and installation tailored to your space.",
+      "images": ["https://images.pexels.com/photos/534174/pexels-photo-534174.jpeg"],
+      "seo": {
+        "title": "Kitchen Installation | EvoHome",
+        "description": "Bespoke kitchen projects managed end-to-end.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/services/kitchens-complete"
+      }
+    }
+  },
+  {
+    "slug": "kitchen-worktops",
+    "name": "Kitchen Worktops",
+    "category": "Kitchens",
+    "data": {
+      "summary": "Quartz, granite, solid surface and laminate replacement.",
+      "images": [],
+      "seo": {
+        "title": "Kitchen Worktops | Supply & Fit",
+        "description": "Beautiful, durable worktops cut and installed precisely.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/services/kitchen-worktops"
+      }
+    }
+  },
+  {
+    "slug": "kitchen-storage-upgrades",
+    "name": "Kitchen Storage & Upgrades",
+    "category": "Kitchens",
+    "data": {
+      "summary": "Cabinet re-fronting, pull-outs, new lighting and appliances.",
+      "images": [],
+      "seo": {
+        "title": "Kitchen Upgrades | EvoHome",
+        "description": "Refresh your kitchen with clever storage and updates.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/services/kitchen-storage-upgrades"
+      }
+    }
+  },
+
+  {
+    "slug": "bathrooms-complete",
+    "name": "Complete Bathrooms",
+    "category": "Bathrooms",
+    "data": {
+      "summary": "Beautiful bathrooms with plumbing, tiling and electrics managed.",
+      "images": ["https://images.pexels.com/photos/1571457/pexels-photo-1571457.jpeg"],
+      "seo": {
+        "title": "Bathroom Installation | EvoHome",
+        "description": "End-to-end bathroom projects with expert finishing.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/services/bathrooms-complete"
+      }
+    }
+  },
+  {
+    "slug": "shower-rooms-wet-rooms",
+    "name": "Shower Rooms & Wet Rooms",
+    "category": "Bathrooms",
+    "data": {
+      "summary": "Walk-in showers and tanked wet rooms with safe drainage.",
+      "images": [],
+      "seo": {
+        "title": "Wet Rooms & Showers | EvoHome",
+        "description": "Practical, stylish wet rooms and shower spaces.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/services/shower-rooms-wet-rooms"
+      }
+    }
+  },
+  {
+    "slug": "bathroom-design-tiling",
+    "name": "Bathroom Design & Tiling",
+    "category": "Bathrooms",
+    "data": {
+      "summary": "Professional layout, tile design and waterproof finishes.",
+      "images": [],
+      "seo": {
+        "title": "Bathroom Design & Tiling | EvoHome",
+        "description": "Quality tiling and bathroom planning from experts.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/services/bathroom-design-tiling"
+      }
+    }
+  },
+
+  {
+    "slug": "driveways-paving",
+    "name": "Driveways & Paving",
+    "category": "Driveways & Paving",
+    "data": {
+      "summary": "Long-lasting driveways designed for your property and budget.",
+      "images": ["https://images.pexels.com/photos/6813316/pexels-photo-6813316.jpeg"],
+      "seo": {
+        "title": "Driveways & Paving | EvoHome",
+        "description": "Durable, great-looking driveways with proper groundwork.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/services/driveways-paving"
+      }
+    }
+  },
+  {
+    "slug": "patios-pathways",
+    "name": "Patios & Pathways",
+    "category": "Driveways & Paving",
+    "data": {
+      "summary": "Indian sandstone, porcelain and concrete paving with neat cuts.",
+      "images": [],
+      "seo": {
+        "title": "Patios & Paths | EvoHome",
+        "description": "Outdoor paving that blends durability and design.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/services/patios-pathways"
+      }
+    }
+  },
+  {
+    "slug": "block-paving",
+    "name": "Block Paving",
+    "category": "Driveways & Paving",
+    "data": {
+      "summary": "Block paved driveways and paths with edging and drainage.",
+      "images": [],
+      "seo": {
+        "title": "Block Paving | EvoHome",
+        "description": "Classic block paving installed by experts.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/services/block-paving"
+      }
+    }
+  },
+  {
+    "slug": "resin-bound-driveways",
+    "name": "Resin Bound Driveways",
+    "category": "Driveways & Paving",
+    "data": {
+      "summary": "Smooth, permeable resin finishes in a wide range of colours.",
+      "images": [],
+      "seo": {
+        "title": "Resin Driveways | EvoHome",
+        "description": "Low-maintenance resin bound driveways.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/services/resin-bound-driveways"
+      }
+    }
+  },
+  {
+    "slug": "tarmac-concrete",
+    "name": "Tarmac & Concrete Drives",
+    "category": "Driveways & Paving",
+    "data": {
+      "summary": "Hard-wearing tarmac or reinforced concrete driveways.",
+      "images": [],
+      "seo": {
+        "title": "Tarmac & Concrete Drives | EvoHome",
+        "description": "Traditional, durable driveway finishes.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/services/tarmac-concrete"
+      }
+    }
+  },
+
+  {
+    "slug": "loft-insulation",
+    "name": "Loft Insulation",
+    "category": "Insulation & Rendering",
+    "data": {
+      "summary": "Warm your home and cut bills with high-tog loft insulation.",
+      "images": [],
+      "seo": {
+        "title": "Loft Insulation | EvoHome",
+        "description": "Professional loft top-up and new insulation.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/services/loft-insulation"
+      }
+    }
+  },
+  {
+    "slug": "cavity-wall-insulation",
+    "name": "Cavity Wall Insulation",
+    "category": "Insulation & Rendering",
+    "data": {
+      "summary": "Cavity fill for thermal comfort and energy savings.",
+      "images": [],
+      "seo": {
+        "title": "Cavity Wall Insulation | EvoHome",
+        "description": "Survey and installation with compliance paperwork.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/services/cavity-wall-insulation"
+      }
+    }
+  },
+  {
+    "slug": "solid-wall-insulation",
+    "name": "Solid Wall Insulation",
+    "category": "Insulation & Rendering",
+    "data": {
+      "summary": "Internal or external insulation systems for solid walls.",
+      "images": [],
+      "seo": {
+        "title": "Solid Wall Insulation | EvoHome",
+        "description": "Improve comfort in older properties with SWI.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/services/solid-wall-insulation"
+      }
+    }
+  },
+  {
+    "slug": "internal-external-rendering",
+    "name": "Internal & External Rendering",
+    "category": "Insulation & Rendering",
+    "data": {
+      "summary": "Smooth, durable render finishes with mesh reinforcement.",
+      "images": [],
+      "seo": {
+        "title": "Rendering Services | EvoHome",
+        "description": "External and internal rendering with modern materials.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/services/internal-external-rendering"
+      }
+    }
+  },
+
+  {
+    "slug": "composite-decking",
+    "name": "Composite Decking",
+    "category": "Garden & Outdoor",
+    "data": {
+      "summary": "Low-maintenance composite boards with hidden fixings.",
+      "images": ["https://images.pexels.com/photos/1396131/pexels-photo-1396131.jpeg"],
+      "seo": {
+        "title": "Composite Decking | EvoHome",
+        "description": "Slip-resistant, long-lasting composite decking.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/services/composite-decking"
+      }
+    }
+  },
+  {
+    "slug": "grass-turfing",
+    "name": "Grass & Turfing",
+    "category": "Garden & Outdoor",
+    "data": {
+      "summary": "Real turf laying and prep for lush lawns.",
+      "images": [],
+      "seo": {
+        "title": "Grass & Turfing | EvoHome",
+        "description": "Garden turf, levelling and topsoil preparation.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/services/grass-turfing"
+      }
+    }
+  },
+  {
+    "slug": "garden-design-landscaping",
+    "name": "Garden Design & Landscaping",
+    "category": "Garden & Outdoor",
+    "data": {
+      "summary": "Full garden makeovers with planting, patios and structures.",
+      "images": [],
+      "seo": {
+        "title": "Garden Design & Landscaping | EvoHome",
+        "description": "Transform your outdoor space with tailored designs.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/services/garden-design-landscaping"
+      }
+    }
+  },
+  {
+    "slug": "garden-fencing-gates",
+    "name": "Garden Fencing & Gates",
+    "category": "Garden & Outdoor",
+    "data": {
+      "summary": "Closeboard, panel and decorative fencing with sturdy posts.",
+      "images": [],
+      "seo": {
+        "title": "Fencing & Gates | EvoHome",
+        "description": "Durable fencing installed with care and precision.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/services/garden-fencing-gates"
+      }
+    }
+  },
+  {
+    "slug": "garden-lighting-electrics",
+    "name": "Garden Lighting & Electrics",
+    "category": "Garden & Outdoor",
+    "data": {
+      "summary": "Outdoor power and lighting designed for ambience and safety.",
+      "images": [],
+      "seo": {
+        "title": "Garden Electrics & Lighting | EvoHome",
+        "description": "Weatherproof outdoor electrics and lighting layouts.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/services/garden-lighting-electrics"
+      }
+    }
+  },
+  {
+    "slug": "garden-rooms-studios",
+    "name": "Garden Rooms & Studios",
+    "category": "Garden & Outdoor",
+    "data": {
+      "summary": "Insulated garden buildings for offices, gyms or hobbies.",
+      "images": [],
+      "seo": {
+        "title": "Garden Rooms & Studios | EvoHome",
+        "description": "Bespoke outbuildings with power, heating and finishes.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/services/garden-rooms-studios"
+      }
+    }
+  },
+  {
+    "slug": "summerhouses-timber-structures",
+    "name": "Summerhouses & Timber Structures",
+    "category": "Garden & Outdoor",
+    "data": {
+      "summary": "Attractive timber structures built to last.",
+      "images": [],
+      "seo": {
+        "title": "Summerhouses & Timber Structures | EvoHome",
+        "description": "Custom timber buildings for gardens and patios.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/services/summerhouses-timber-structures"
+      }
+    }
+  },
+  {
+    "slug": "pergolas-covered-spaces",
+    "name": "Pergolas & Covered Spaces",
+    "category": "Garden & Outdoor",
+    "data": {
+      "summary": "Create shade and shelter with timber or aluminium pergolas.",
+      "images": [],
+      "seo": {
+        "title": "Pergolas & Covered Areas | EvoHome",
+        "description": "Stylish covered spaces to enjoy the garden all year.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/services/pergolas-covered-spaces"
+      }
+    }
+  },
+
+  {
+    "slug": "plastering-rendering",
+    "name": "Plastering & Rendering",
+    "category": "Interiors & Trades",
+    "data": {
+      "summary": "Skimming, boarding and rendering with smooth finishes.",
+      "images": [],
+      "seo": {
+        "title": "Plastering & Rendering | EvoHome",
+        "description": "Interior plastering and external rendering services.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/services/plastering-rendering"
+      }
+    }
+  },
+  {
+    "slug": "carpentry-joinery",
+    "name": "Carpentry & Joinery",
+    "category": "Interiors & Trades",
+    "data": {
+      "summary": "Doors, skirting, bespoke storage and more.",
+      "images": [],
+      "seo": {
+        "title": "Carpentry & Joinery | EvoHome",
+        "description": "Skilled carpentry for interiors and storage.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/services/carpentry-joinery"
+      }
+    }
+  },
+  {
+    "slug": "electrical-lighting",
+    "name": "Electrical & Lighting",
+    "category": "Interiors & Trades",
+    "data": {
+      "summary": "Rewires, additions and feature lighting by qualified electricians.",
+      "images": [],
+      "seo": {
+        "title": "Electrical & Lighting | EvoHome",
+        "description": "Certified electrical work with neat finishes.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/services/electrical-lighting"
+      }
+    }
+  },
+  {
+    "slug": "plumbing-heating",
+    "name": "Plumbing & Heating",
+    "category": "Interiors & Trades",
+    "data": {
+      "summary": "Repairs, upgrades and new installs for reliable hot water and heating.",
+      "images": [],
+      "seo": {
+        "title": "Plumbing & Heating | EvoHome",
+        "description": "Qualified plumbing and heating services.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/services/plumbing-heating"
+      }
+    }
+  },
+  {
+    "slug": "flooring-tiling",
+    "name": "Flooring & Tiling",
+    "category": "Interiors & Trades",
+    "data": {
+      "summary": "LVT, wood, carpet and tiling installed to perfection.",
+      "images": [],
+      "seo": {
+        "title": "Flooring & Tiling | EvoHome",
+        "description": "Beautiful floors and tiles fitted properly.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/services/flooring-tiling"
+      }
+    }
+  },
+
+  {
+    "slug": "handyman-services",
+    "name": "Handyman Services",
+    "category": "Property Maintenance",
+    "data": {
+      "summary": "Small jobs completed quickly and to a high standard.",
+      "images": [],
+      "seo": {
+        "title": "Handyman Services | EvoHome",
+        "description": "All those little jobs handled professionally.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/services/handyman-services"
+      }
+    }
+  },
+  {
+    "slug": "emergency-repairs",
+    "name": "Emergency Repairs",
+    "category": "Property Maintenance",
+    "data": {
+      "summary": "Rapid response for leaks, faults and urgent issues.",
+      "images": [],
+      "seo": {
+        "title": "Emergency Home Repairs | EvoHome",
+        "description": "Fast call-outs for urgent repairs and safety.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/services/emergency-repairs"
+      }
+    }
+  },
+  {
+    "slug": "seasonal-services",
+    "name": "Seasonal Services",
+    "category": "Property Maintenance",
+    "data": {
+      "summary": "Gutter clearing, exterior prep and seasonal checks.",
+      "images": [],
+      "seo": {
+        "title": "Seasonal Home Services | EvoHome",
+        "description": "Keep your home in top shape through the seasons.",
+        "canonicalBase": "https://evohomeimprovements.co.uk/services/seasonal-services"
+      }
+    }
+  }
+]
