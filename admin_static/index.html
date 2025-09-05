@@ -6,41 +6,76 @@
   <link rel="stylesheet" href="/admin/styles.css" />
 </head>
 <body>
-  <div id="app">
+  <header class="bar">
     <h1>EvoHome Admin</h1>
-    <div id="login">
-      <h2>Login</h2>
-      <input id="email" placeholder="email" />
-      <input id="password" placeholder="password" type="password" />
-      <button id="btnLogin">Login</button>
-      <div id="loginMsg"></div>
+    <div>
+      <button id="btnSeed" class="ghost">Seed</button>
+      <button id="btnUpload" class="ghost">Upload Image</button>
+      <button id="btnLogout">Logout</button>
     </div>
+  </header>
 
-    <div id="main" style="display:none;">
-      <div class="topbar">
-        <button id="btnLogout">Logout</button>
-      </div>
-      <div class="columns">
-        <div class="col left">
-          <h3>Collections</h3>
-          <ul id="collections">
-            <!-- will be filled -->
-          </ul>
-          <button id="btnRefresh">Refresh</button>
+  <main id="login">
+    <h2>Login</h2>
+    <input id="email" placeholder="email" />
+    <input id="password" type="password" placeholder="password" />
+    <button id="btnLogin">Login</button>
+    <div id="loginMsg" class="muted"></div>
+  </main>
+
+  <main id="app" style="display:none;">
+    <aside>
+      <h3>Collections</h3>
+      <div class="sectionTitle">Page Content</div>
+      <ul id="listContent"></ul>
+      <div class="sectionTitle">Data Collections</div>
+      <ul id="listData"></ul>
+      <button id="btnRefresh" class="ghost">Refresh</button>
+    </aside>
+
+    <section class="editor">
+      <div class="editorHeader">
+        <h3 id="colTitle">Select a collection</h3>
+        <div>
+          <button id="modeEasy" class="primary small">Easy mode</button>
+          <button id="modeJson" class="small">JSON mode</button>
+          <button id="btnExport" class="ghost small">Export</button>
+          <label class="importLabel small">
+            Import <input type="file" id="fileImport" accept="application/json" hidden />
+          </label>
         </div>
-        <div class="col right">
-          <h3 id="colTitle">Select a collection</h3>
-          <textarea id="editor" rows="20"></textarea>
-          <br/>
-          <button id="btnSave">Save content</button>
-          <button id="btnSeed">Run /seed (reads seed_data folder)</button>
-        </div>
       </div>
-    </div>
-    <div id="help">
-  <p>Manage EvoHome content here. Select a section to edit and save your changes.</p>
-</div>
-  </div>
-<script src="/admin/app.js"></script>
+
+      <!-- Easy mode -->
+      <div id="easyMode" style="display:none;">
+        <div id="easyForm"></div>
+        <button id="btnSaveEasy" class="primary">Save</button>
+      </div>
+
+      <!-- JSON mode -->
+      <textarea id="jsonBox" spellcheck="false" placeholder="// Not found. Use Save to create content."></textarea>
+      <button id="btnSaveJson" class="primary">Save content</button>
+    </section>
+  </main>
+
+  <!-- Seed modal -->
+  <dialog id="seedDlg">
+    <h3>Seeding</h3>
+    <p>This will import from <code>seed_data/</code> if present; otherwise it will load defaults.</p>
+    <button id="doSeed" class="primary">Run Seed</button>
+    <pre id="seedOut"></pre>
+    <button id="closeSeed">Close</button>
+  </dialog>
+
+  <!-- Upload modal -->
+  <dialog id="uploadDlg">
+    <h3>Upload Image</h3>
+    <input type="file" id="fileUpload" />
+    <button id="doUpload" class="primary">Upload</button>
+    <input id="uploadedUrl" readonly placeholder="URL will appear here" />
+    <button id="closeUpload">Close</button>
+  </dialog>
+
+  <script src="/admin/app.js"></script>
 </body>
 </html>
