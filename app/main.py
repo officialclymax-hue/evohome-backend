@@ -24,7 +24,7 @@ from pydantic import BaseModel, EmailStr
 from jose import jwt
 from jose.exceptions import JWTError
 from sqlalchemy import create_engine, Column, Integer, String, Text, DateTime
-from sqlalchemy.dialects.sqlite import JSON as SAJSON  # works for sqlite; postgres will store as text
+from sqlalchemy import JSON as SAJSON  # works for sqlite; postgres will store as text
 from sqlalchemy.orm import sessionmaker, declarative_base
 import smtplib
 import requests
@@ -206,29 +206,25 @@ def get_content(key: str):
         db.close()
 
 @app.post("/content/{key}")
-def save_content(key: str, request: Request):
+async def save_content(key: str, request: Request):
     require_admin(request)
-    body = None
+    # Try to read JSON payload robustly
     try:
-        body = json.loads((await request.body()).decode("utf-8")) if hasattr(request, "body") else None
+        body = await request.json()
     except Exception:
-        body = None
-    if body is None:
+        raw = await request.body()
         try:
-            body = request.json()
+            body = json.loads(raw.decode("utf-8"))
         except Exception:
-            pass
-    if body is None or isinstance(body, (str, int, float, list)) is False and not isinstance(body, dict):
-        # Try normal FastAPI way
-        body = (request.state._json if hasattr(request.state, "_json") else None) or {}
+            body = {}
+
     db = SessionLocal()
     try:
         obj = db.query(Content).filter(Content.key == key).first()
         if obj:
             obj.data = body
         else:
-            obj = Content(key=key, data=body)
-            db.add(obj)
+            db.add(Content(key=key, data=body))
         db.commit()
         return {"ok": True, "key": key}
     finally:
