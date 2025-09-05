@@ -1,122 +1,73 @@
 <!doctype html>
 <html>
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8"/>
   <title>EvoHome Admin</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <link rel="stylesheet" href="/admin/styles.css" />
+  <link rel="stylesheet" href="/admin/styles.css"/>
 </head>
 <body>
-  <header class="bar">
-    <div class="brand">EvoHome Admin</div>
-    <div class="bar-actions">
-      <button id="btnBuilder" class="ghost">Page Builder</button>
-      <button id="btnSeed" class="ghost">Seed</button>
-      <button id="btnLogout">Logout</button>
+  <div id="wrap">
+    <h1>EvoHome Admin</h1>
+
+    <!-- Login -->
+    <div id="auth">
+      <input id="email" placeholder="email" value="office@evohomeimprovements.co.uk"/>
+      <input id="password" type="password" placeholder="password"/>
+      <button id="btnLogin">Login</button>
+      <div id="msg"></div>
     </div>
-  </header>
 
-  <!-- LOGIN -->
-  <main id="loginView" class="panel narrow">
-    <h2>Login</h2>
-    <input id="email" placeholder="you@example.com" />
-    <input id="password" type="password" placeholder="password" />
-    <button id="btnLogin" class="primary">Login</button>
-    <div id="loginMsg" class="muted"></div>
-  </main>
+    <!-- Main -->
+    <div id="main" style="display:none;">
+      <div class="topbar">
+        <div class="tabs">
+          <button id="tabEasy" class="tab active">Easy mode</button>
+          <button id="tabJSON" class="tab">JSON mode</button>
+        </div>
+        <button id="btnSeed">Seed</button>
+        <button id="btnLogout">Logout</button>
+      </div>
 
-  <!-- CMS VIEW -->
-  <main id="appView" class="grid" style="display:none;">
-    <aside class="sidebar">
-      <h3>Collections</h3>
-      <div class="sectionTitle">Page Content</div>
-      <ul id="listContent"></ul>
-      <div class="sectionTitle">Data Collections</div>
-      <ul id="listData"></ul>
-      <button id="btnRefresh" class="ghost small">Refresh</button>
-    </aside>
+      <div class="cols">
+        <div class="col left">
+          <h3>Page Content</h3>
+          <ul id="contentList"></ul>
 
-    <section class="workspace">
-      <div class="workspace-head">
-        <h2 id="colTitle">Select a collection</h2>
-        <div class="head-actions">
-          <button id="modeEasy" class="primary small">Easy mode</button>
-          <button id="modeJson" class="small">JSON mode</button>
-          <button id="btnExport" class="ghost small">Export</button>
-          <label class="ghost small file-label">Import
-            <input type="file" id="fileImport" accept="application/json" hidden />
-          </label>
+          <h3>Data Collections</h3>
+          <ul id="dataList"></ul>
+
+          <button id="btnRefresh">Refresh list</button>
+        </div>
+
+        <div class="col right">
+          <div class="panelHeader">
+            <h3 id="panelTitle">Select an item</h3>
+            <div id="actions">
+              <button id="btnSave">Save</button>
+              <button id="btnExport">Export</button>
+              <button id="btnImport">Import</button>
+              <input type="file" id="importFile" style="display:none" accept="application/json"/>
+            </div>
+          </div>
+
+          <!-- EASY MODE -->
+          <div id="easyPanel" class="panel">
+            <div id="easyForm"><em>Pick a section from the left.</em></div>
+          </div>
+
+          <!-- JSON MODE -->
+          <div id="jsonPanel" class="panel" style="display:none;">
+            <textarea id="editor" rows="26" spellcheck="false"></textarea>
+            <div class="actions">
+              <button id="btnFormat">Format JSON</button>
+            </div>
+          </div>
+
+          <input type="file" id="fileUpload" style="display:none" />
         </div>
       </div>
-
-      <!-- EASY MODE -->
-      <div id="easyMode" style="display:none;">
-        <form id="formSingleton" class="form" style="display:none;"></form>
-        <div id="cardsList" class="cards"></div>
-        <div id="galleryGrid" class="grid-gallery"></div>
-        <div class="row actions">
-          <button id="btnAddItem" class="ghost" style="display:none;">+ Add item</button>
-          <button id="btnSaveEasy" class="primary">Save</button>
-        </div>
-      </div>
-
-      <!-- JSON MODE -->
-      <textarea id="jsonBox" class="jsonbox" spellcheck="false" placeholder="// Not found. Use Save to create content."></textarea>
-      <div class="row actions"><button id="btnSaveJson" class="primary">Save content</button></div>
-    </section>
-  </main>
-
-  <!-- PAGE BUILDER VIEW -->
-  <main id="builderView" class="grid" style="display:none;">
-    <aside class="sidebar">
-      <h3>Pages</h3>
-      <div class="row">
-        <input id="pageSlug" placeholder="homepage" />
-        <button id="btnLoadPage" class="ghost small">Load</button>
-      </div>
-      <div class="sectionTitle">Saved Pages</div>
-      <ul id="listPages"></ul>
-      <div class="sectionTitle">Palette</div>
-      <div id="palette"></div>
-    </aside>
-
-    <section class="workspace">
-      <div class="workspace-head">
-        <h2>Builder: <span id="builderTitle">homepage</span></h2>
-        <div class="head-actions">
-          <button id="btnSavePage" class="primary small">Save page</button>
-        </div>
-      </div>
-
-      <div class="builder">
-        <div id="canvas" class="canvas" data-empty="Drag blocks here"></div>
-        <div id="inspector" class="inspector">
-          <h3>Block settings</h3>
-          <form id="inspectorForm"></form>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <!-- SEED + UPLOAD DIALOGS -->
-  <dialog id="seedDlg" class="dialog">
-    <h3>Seeding</h3>
-    <p>This imports from <code>seed_data/</code> (if present) or loads defaults.</p>
-    <button id="doSeed" class="primary">Run Seed</button>
-    <pre id="seedOut" class="pre"></pre>
-    <div class="row right"><button id="closeSeed">Close</button></div>
-  </dialog>
-
-  <dialog id="uploadDlg" class="dialog">
-    <h3>Upload Image</h3>
-    <input type="file" id="fileUpload" />
-    <div class="row">
-      <button id="doUpload" class="primary">Upload</button>
-      <button id="closeUpload">Close</button>
     </div>
-    <input id="uploadedUrl" readonly placeholder="URL will appear here" />
-  </dialog>
-
+  </div>
   <script src="/admin/app.js"></script>
 </body>
 </html>
