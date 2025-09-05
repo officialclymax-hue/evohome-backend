@@ -3,77 +3,94 @@
 <head>
   <meta charset="utf-8" />
   <title>EvoHome Admin</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <link rel="stylesheet" href="/admin/styles.css" />
 </head>
 <body>
   <header class="bar">
-    <h1>EvoHome Admin</h1>
-    <div>
+    <div class="brand">EvoHome Admin</div>
+    <div class="bar-actions">
       <button id="btnSeed" class="ghost">Seed</button>
-      <button id="btnUpload" class="ghost">Upload Image</button>
       <button id="btnLogout">Logout</button>
     </div>
   </header>
 
-  <main id="login">
+  <!-- LOGIN -->
+  <main id="loginView" class="panel narrow">
     <h2>Login</h2>
-    <input id="email" placeholder="email" />
+    <input id="email" placeholder="you@example.com" />
     <input id="password" type="password" placeholder="password" />
-    <button id="btnLogin">Login</button>
+    <button id="btnLogin" class="primary">Login</button>
     <div id="loginMsg" class="muted"></div>
   </main>
 
-  <main id="app" style="display:none;">
-    <aside>
+  <!-- APP -->
+  <main id="appView" class="grid" style="display:none;">
+    <aside class="sidebar">
       <h3>Collections</h3>
       <div class="sectionTitle">Page Content</div>
       <ul id="listContent"></ul>
       <div class="sectionTitle">Data Collections</div>
       <ul id="listData"></ul>
-      <button id="btnRefresh" class="ghost">Refresh</button>
+      <button id="btnRefresh" class="ghost small">Refresh</button>
     </aside>
 
-    <section class="editor">
-      <div class="editorHeader">
-        <h3 id="colTitle">Select a collection</h3>
-        <div>
-          <button id="modeEasy" class="primary small">Easy mode</button>
-          <button id="modeJson" class="small">JSON mode</button>
+    <section class="workspace">
+      <div class="workspace-head">
+        <h2 id="colTitle">Select a collection</h2>
+        <div class="head-actions">
+          <button id="modeEasy" class="primary small" title="Owner-friendly view">Easy mode</button>
+          <button id="modeJson" class="small" title="Raw JSON">JSON mode</button>
           <button id="btnExport" class="ghost small">Export</button>
-          <label class="importLabel small">
-            Import <input type="file" id="fileImport" accept="application/json" hidden />
+          <label class="ghost small file-label">Import
+            <input type="file" id="fileImport" accept="application/json" hidden />
           </label>
         </div>
       </div>
 
-      <!-- Easy mode -->
+      <!-- EASY MODE -->
       <div id="easyMode" style="display:none;">
-        <div id="easyForm"></div>
-        <button id="btnSaveEasy" class="primary">Save</button>
+        <!-- Singletons form -->
+        <form id="formSingleton" class="form" style="display:none;"></form>
+
+        <!-- Arrays: services/blogs -->
+        <div id="cardsList" class="cards"></div>
+
+        <!-- Array: gallery grid -->
+        <div id="galleryGrid" class="grid-gallery"></div>
+
+        <div class="row actions">
+          <button id="btnAddItem" class="ghost" style="display:none;">+ Add item</button>
+          <button id="btnSaveEasy" class="primary">Save</button>
+        </div>
       </div>
 
-      <!-- JSON mode -->
-      <textarea id="jsonBox" spellcheck="false" placeholder="// Not found. Use Save to create content."></textarea>
-      <button id="btnSaveJson" class="primary">Save content</button>
+      <!-- JSON MODE -->
+      <textarea id="jsonBox" class="jsonbox" spellcheck="false" placeholder="// Not found. Use Save to create content."></textarea>
+      <div class="row actions">
+        <button id="btnSaveJson" class="primary">Save content</button>
+      </div>
     </section>
   </main>
 
-  <!-- Seed modal -->
-  <dialog id="seedDlg">
+  <!-- SEED MODAL -->
+  <dialog id="seedDlg" class="dialog">
     <h3>Seeding</h3>
-    <p>This will import from <code>seed_data/</code> if present; otherwise it will load defaults.</p>
+    <p>This imports from <code>seed_data/</code> (if present) or loads defaults.</p>
     <button id="doSeed" class="primary">Run Seed</button>
-    <pre id="seedOut"></pre>
-    <button id="closeSeed">Close</button>
+    <pre id="seedOut" class="pre"></pre>
+    <div class="row right"><button id="closeSeed">Close</button></div>
   </dialog>
 
-  <!-- Upload modal -->
-  <dialog id="uploadDlg">
+  <!-- UPLOAD MODAL (re-used) -->
+  <dialog id="uploadDlg" class="dialog">
     <h3>Upload Image</h3>
     <input type="file" id="fileUpload" />
-    <button id="doUpload" class="primary">Upload</button>
+    <div class="row">
+      <button id="doUpload" class="primary">Upload</button>
+      <button id="closeUpload">Close</button>
+    </div>
     <input id="uploadedUrl" readonly placeholder="URL will appear here" />
-    <button id="closeUpload">Close</button>
   </dialog>
 
   <script src="/admin/app.js"></script>
