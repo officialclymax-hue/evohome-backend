@@ -1,0 +1,27 @@
+{
+  "blocks": [
+    {
+      "type": "hero",
+      "props": {
+        "title": "Request a Free Quote",
+        "subtitle": "Tell us about your project. We’ll match you with vetted specialists.",
+        "images": []
+      }
+    },
+    {
+      "type": "features",
+      "props": {
+        "heading": "How it works",
+        "items": [
+          "Tell us about your project",
+          "We match you with vetted specialists",
+          "Compare quotes and get support"
+        ]
+      }
+    },
+    {
+      "type": "form",
+      "props": { "heading": "Get started" }
+    }
+  ]
+}
