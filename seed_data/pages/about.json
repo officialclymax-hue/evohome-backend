@@ -1,0 +1,40 @@
+{
+  "blocks": [
+    {
+      "type": "hero",
+      "props": {
+        "title": "About EvoHome Improvements",
+        "subtitle": "The smarter way to improve your home",
+        "images": [
+          "https://images.pexels.com/photos/1396134/pexels-photo-1396134.jpeg"
+        ]
+      }
+    },
+    {
+      "type": "text",
+      "props": {
+        "html": "<p>We’re redefining the home improvement experience for UK homeowners, built on 30+ years of industry expertise. Our vetted network, quality checks and homeowner protection make projects easier and safer.</p>"
+      }
+    },
+    {
+      "type": "features",
+      "props": {
+        "heading": "What we stand for",
+        "items": [
+          "Vetted specialists only",
+          "Honest advice first",
+          "Quote comparison",
+          "End-to-end support"
+        ]
+      }
+    },
+    {
+      "type": "cta",
+      "props": {
+        "text": "Have a project in mind?",
+        "button": "Request a Quote",
+        "href": "/request-quote"
+      }
+    }
+  ]
+}
