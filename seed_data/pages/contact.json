@@ -1,0 +1,30 @@
+{
+  "blocks": [
+    {
+      "type": "hero",
+      "props": {
+        "title": "Contact Us",
+        "subtitle": "Talk to a home improvement specialist today",
+        "images": []
+      }
+    },
+    {
+      "type": "text",
+      "props": {
+        "html": "<p>Phone: <strong>0333 004 0195</strong><br>Email: <strong>office@evohomeimprovements.co.uk</strong><br>Hours: Mon–Fri 8am–6pm, Sat 9am–4pm</p>"
+      }
+    },
+    {
+      "type": "form",
+      "props": {
+        "heading": "Send us a message"
+      }
+    },
+    {
+      "type": "map",
+      "props": {
+        "src": "https://www.google.com/maps/embed?pb="
+      }
+    }
+  ]
+}
