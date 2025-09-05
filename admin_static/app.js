@@ -1,15 +1,17 @@
-// admin_static/app.js — Non-technical "Easy mode" admin
+// admin_static/app.js — Non-technical “Easy mode” admin with image thumbnails
 const API = location.origin;
-let token = null;           // JWT
+let token = null;           // JWT from /auth/login
 let current = null;         // { type: 'content'|'data', key: string }
-let model = null;           // current JSON object/array (live in Easy mode)
+let model = null;           // current JSON object/array shown in Easy mode
 
+// Left sidebar lists
 const CONTENT_KEYS = [
   "homepage","header","about","contact","footer","coverage",
   "seo","request-quote","forms","chatbot","floating-buttons"
 ];
 const DATA_KEYS = ["services","blogs","gallery"];
 
+// ----------------- small helpers -----------------
 function $(id){ return document.getElementById(id); }
 function el(tag, props={}, children=[]) {
   const n = document.createElement(tag);
@@ -18,18 +20,41 @@ function el(tag, props={}, children=[]) {
   children.forEach(c => c!=null && n.appendChild(typeof c==="string" ? document.createTextNode(c) : c));
   return n;
 }
-
 async function api(path, options={}) {
   const headers = options.headers || {};
   if(token) headers.Authorization = "Bearer " + token;
-  // JSON auto header
   if(options.body && !(options.body instanceof FormData) && !headers["Content-Type"])
     headers["Content-Type"] = "application/json";
   const res = await fetch(API + path, {...options, headers});
   return res;
 }
+function labelFor(path){
+  const key = String(path[path.length-1] ?? "field");
+  return key.replace(/[-_]/g, " ").replace(/\b\w/g, m=>m.toUpperCase());
+}
+function keyName(path){ return String(path[path.length-1] ?? ""); }
+function setAtPath(obj, path, v){
+  let cur = obj;
+  for(let i=0;i<path.length-1;i++){
+    const k = path[i];
+    if(cur[k]==null || typeof cur[k]!=="object") cur[k] = (typeof path[i+1]==="number" ? [] : {});
+    cur = cur[k];
+  }
+  cur[path[path.length-1]] = v;
+}
+function getAtPath(obj, path){ return path.reduce((o,k)=> (o==null?undefined:o[k]), obj); }
 
-/* ---------------- Login ---------------- */
+// Image helpers
+function isImageUrl(s){
+  if(!s || typeof s !== "string") return false;
+  return /\.(png|jpe?g|gif|webp|avif|svg)(\?.*)?$/i.test(s);
+}
+function isImagesKey(path){
+  const k = keyName(path).toLowerCase();
+  return k === "images" || k === "photos" || k === "gallery";
+}
+
+// ----------------- auth -----------------
 $("btnLogin").onclick = async ()=>{
   const email = $("email").value.trim();
   const password = $("password").value;
@@ -45,7 +70,7 @@ $("btnLogin").onclick = async ()=>{
 $("btnLogout").onclick = ()=>{ token=null; current=null; model=null; $("auth").style.display=""; $("main").style.display="none"; };
 $("btnRefresh").onclick = ()=> initLists();
 
-/* ---------------- UI ---------------- */
+// ----------------- UI scaffold -----------------
 function initUI(){
   $("auth").style.display="none";
   $("main").style.display="";
@@ -67,36 +92,35 @@ function initLists(){
   });
 }
 
-/* ---------------- Loaders ---------------- */
+// ----------------- loaders -----------------
 async function loadContent(key){
   current = {type:"content", key};
   $("panelTitle").textContent = key;
   const r = await api("/content/"+key);
-  if(!r.ok){ model = {}; } else { model = await r.json(); }
+  model = r.ok ? await r.json() : {};
   renderEasy(model);
-  // also keep JSON editor in sync
   $("editor").value = JSON.stringify(model, null, 2);
 }
 async function loadData(key){
   current = {type:"data", key};
   $("panelTitle").textContent = key;
   const r = await api("/"+key);
-  if(!r.ok){ model = []; } else { model = await r.json(); }
+  model = r.ok ? await r.json() : [];
   renderEasy(model);
   $("editor").value = JSON.stringify(model, null, 2);
 }
 
-/* ---------------- Seed ---------------- */
+// ----------------- seed -----------------
 $("btnSeed").onclick = async ()=>{
   const r = await api("/seed", {method:"POST"});
   const j = await r.json().catch(()=>null);
   alert("Seed result:\n"+JSON.stringify(j, null, 2));
 };
 
-/* ---------------- Save / Import / Export ---------------- */
+// ----------------- save / import / export -----------------
 $("btnSave").onclick = async ()=>{
   if(!current) return alert("Pick something on the left.");
-  const payload = model; // Easy mode is the source of truth
+  const payload = model;
   let res;
   if(current.type==="content"){
     res = await api("/content/"+current.key, {method:"POST", body: JSON.stringify(payload)});
@@ -106,7 +130,6 @@ $("btnSave").onclick = async ()=>{
   if(!res.ok) return alert("Save failed ("+res.status+")");
   alert("Saved!");
 };
-
 $("btnExport").onclick = ()=>{
   if(!current) return;
   const blob = new Blob([JSON.stringify(model, null, 2)], {type:"application/json"});
@@ -126,29 +149,20 @@ $("importFile").onchange = async e=>{
   }catch(err){ alert("Bad JSON file: "+err.message); }
 };
 
-/* ---------------- JSON helpers ---------------- */
+// ----------------- JSON helpers -----------------
 $("btnFormat").onclick = ()=>{
   try{
     const obj = JSON.parse($("editor").value);
     $("editor").value = JSON.stringify(obj, null, 2);
-    model = obj; // keep easy mode in sync
+    model = obj;
     renderEasy(model);
   }catch(e){ alert("Invalid JSON: "+e.message); }
 };
 function syncEditorFromModel(){
-  if(model==null) $("editor").value = "";
-  else $("editor").value = JSON.stringify(model, null, 2);
+  $("editor").value = model==null ? "" : JSON.stringify(model, null, 2);
 }
 
-/* ---------------- EASY MODE RENDERER ----------------
-   Auto-builds forms from any JSON structure.
-   Strings -> input/textarea
-   Numbers -> number
-   Booleans -> checkbox
-   Arrays of strings -> multi-line textarea (one per line)
-   Arrays of objects -> list with per-item forms
-   Objects -> fieldset of children
------------------------------------------------------ */
+// ----------------- EASY MODE (auto forms) -----------------
 function renderEasy(data){
   const root = $("easyForm");
   root.innerHTML = "";
@@ -164,57 +178,48 @@ function buildNode(path, value){
   if(Array.isArray(value)){
     if(value.every(v => typeof v === "string")) return renderStringArray(path, value);
     if(value.every(v => typeof v === "object")) return renderObjectArray(path, value);
-    // mixed -> JSON textarea
-    return renderJSONLeaf(path, value);
+    return renderJSONLeaf(path, value); // mixed
   }
-  if(typeof value === "object"){
+  if(typeof value === "object" && value !== null){
     return renderObject(path, value);
   }
-  // unknown leaf -> JSON textarea
   return renderJSONLeaf(path, value);
 }
 
-/* ---- field pieces ---- */
-function labelFor(path){
-  const key = path[path.length-1] || (Array.isArray(path) ? "item" : "field");
-  return key.replace(/[-_]/g, " ").replace(/\b\w/g, m=>m.toUpperCase());
-}
-function setAtPath(obj, path, v){
-  let cur = obj;
-  for(let i=0;i<path.length-1;i++){
-    const k = path[i];
-    if(cur[k]==null || typeof cur[k]!=="object") cur[k] = (typeof path[i+1]==="number" ? [] : {});
-    cur = cur[k];
-  }
-  cur[path[path.length-1]] = v;
-}
-function getAtPath(obj, path){
-  return path.reduce((o,k)=> (o==null?undefined:o[k]), obj);
-}
+/* ---------- field renderers ---------- */
 
-/* ---- String ---- */
+// String with inline image preview + upload button when relevant
 function renderString(path, val){
-  const isLong = (val||"").length > 120 || labelFor(path).toLowerCase().includes("description");
-  const wrapper = el("div", {className:"field"});
-  wrapper.appendChild(el("label", {}, [labelFor(path)]));
-  const actions = el("div", {className:"inline"});
-  const input = isLong
-    ? el("textarea", {value: val || "", rows: 4})
-    : el("input", {value: val || "", type:"text"});
-  input.oninput = ()=> setAtPath(model, path, input.value);
-  actions.appendChild(input);
+  const name = keyName(path).toLowerCase();
+  const isLong = (val||"").length > 120 || name.includes("description") || name.includes("body") || name.includes("content");
+  const wrap = el("div", {className:"field"});
+  wrap.appendChild(el("label", {}, [labelFor(path)]));
 
-  // Image helper buttons if the key looks like it holds an image/url
-  const lname = labelFor(path).toLowerCase();
-  if(lname.includes("image") || lname.includes("img") || lname.includes("src") || lname.includes("logo") || lname.includes("url")){
-    const btn = el("button", {type:"button", className:"btnSmall", onclick:()=>uploadForField(input)}, ["Upload"]);
-    actions.appendChild(btn);
+  const row = el("div", {className:"inline"});
+  const input = isLong ? el("textarea", {value: val || "", rows: 4})
+                       : el("input", {value: val || "", type:"text"});
+  input.oninput = ()=> setAtPath(model, path, input.value);
+  row.appendChild(input);
+
+  // Upload button for suspected image/url fields
+  if (name.includes("image") || name.includes("img") || name.includes("logo") || name.includes("url")) {
+    const up = el("button", {type:"button", className:"btnSmall", onclick:()=>uploadForField(input)}, ["Upload"]);
+    row.appendChild(up);
   }
-  wrapper.appendChild(actions);
-  return wrapper;
+
+  // Preview if image URL
+  if(isImageUrl(val)){
+    const preview = el("img", {src: val, className:"thumb"});
+    preview.onerror = ()=> preview.style.display="none";
+    row.appendChild(preview);
+    const open = el("a", {href: val, target:"_blank", className:"btnLink"}, ["Open"]);
+    row.appendChild(open);
+  }
+
+  wrap.appendChild(row);
+  return wrap;
 }
 
-/* ---- Number ---- */
 function renderNumber(path, val){
   const wrap = el("div", {className:"field"});
   wrap.appendChild(el("label", {}, [labelFor(path)]));
@@ -224,7 +229,6 @@ function renderNumber(path, val){
   return wrap;
 }
 
-/* ---- Boolean ---- */
 function renderBoolean(path, val){
   const wrap = el("div", {className:"field"});
   const input = el("input", {type:"checkbox", checked: !!val});
@@ -233,21 +237,118 @@ function renderBoolean(path, val){
   return wrap;
 }
 
-/* ---- Array<string> ---- */
+// Array<string> — thumbnail grid when the field looks like an images array
 function renderStringArray(path, arr){
   const wrap = el("div", {className:"field"});
   wrap.appendChild(el("label", {}, [labelFor(path)]));
-  const ta = el("textarea", {rows: Math.min(10, Math.max(3, arr.length+1))});
-  ta.value = (arr||[]).join("\n");
-  ta.oninput = ()=>{
-    const lines = ta.value.split("\n").map(s=>s.trim()).filter(Boolean);
-    setAtPath(model, path, lines);
-  };
-  wrap.appendChild(ta);
+
+  const looksLikeImages = isImagesKey(path) || (arr||[]).every(s=>isImageUrl(s));
+  if(!looksLikeImages){
+    // simple multi-line textarea
+    const ta = el("textarea", {rows: Math.min(10, Math.max(3, (arr||[]).length+1))});
+    ta.value = (arr||[]).join("\n");
+    ta.oninput = ()=>{
+      const lines = ta.value.split("\n").map(s=>s.trim()).filter(Boolean);
+      setAtPath(model, path, lines);
+    };
+    wrap.appendChild(ta);
+    return wrap;
+  }
+
+  // Thumbnail grid
+  const grid = el("div", {className:"thumbGrid"});
+  (arr||[]).forEach((url, idx)=>{
+    const cell = el("div", {className:"thumbCell"});
+
+    const img  = el("img", {src: url, className:"thumb"});
+    img.onerror = ()=> { img.style.display="none"; cell.appendChild(el("div",{className:"thumbBroken"},["Invalid image URL"])); };
+    cell.appendChild(img);
+
+    const urlInput = el("input", {type:"text", value: url});
+    urlInput.oninput = ()=>{
+      const a = getAtPath(model, path) || [];
+      a[idx] = urlInput.value;
+      setAtPath(model, path, a);
+    };
+    cell.appendChild(urlInput);
+
+    const actions = el("div", {className:"thumbActions"});
+    const open = el("a", {href:url, target:"_blank", className:"btnLink"}, ["Open"]);
+
+    const uploadReplace = el("button", {type:"button", className:"btnSmall", onclick:()=>{
+      const picker = $("fileUpload");
+      picker.onchange = async e=>{
+        const f = e.target.files?.[0]; if(!f) return;
+        const fd = new FormData(); fd.append("file", f);
+        const r = await api("/upload-image", {method:"POST", body: fd});
+        if(!r.ok){ alert("Upload failed"); return; }
+        const j = await r.json();
+        urlInput.value = j.url || "";
+        urlInput.dispatchEvent(new Event("input"));
+        picker.value = "";
+        alert("Uploaded. Replaced image.");
+      };
+      picker.click();
+    }}, ["Upload"]);
+
+    const del  = el("button", {type:"button", className:"btnSmall danger", onclick:()=>{
+      const a = getAtPath(model, path) || [];
+      a.splice(idx,1);
+      setAtPath(model, path, a);
+      renderEasy(model);
+      syncEditorFromModel();
+    }}, ["Delete"]);
+
+    actions.appendChild(open);
+    actions.appendChild(uploadReplace);
+    actions.appendChild(del);
+    cell.appendChild(actions);
+
+    grid.appendChild(cell);
+  });
+
+  // Add new image (URL or upload)
+  const addBar = el("div", {className:"thumbAdd"});
+  const newUrl = el("input", {type:"text", placeholder:"Paste image URL"});
+  const addBtn = el("button", {type:"button", className:"btnSmall", onclick:()=>{
+    const a = getAtPath(model, path) || [];
+    if(newUrl.value.trim()){
+      a.push(newUrl.value.trim());
+      setAtPath(model, path, a);
+      renderEasy(model);
+      syncEditorFromModel();
+      newUrl.value="";
+    } else {
+      alert("Paste an image URL or use Upload.");
+    }
+  }}, ["Add URL"]);
+  const uploadBtn = el("button", {type:"button", className:"btnSmall", onclick:()=>{
+    const picker = $("fileUpload");
+    picker.onchange = async e=>{
+      const f = e.target.files?.[0]; if(!f) return;
+      const fd = new FormData(); fd.append("file", f);
+      const r = await api("/upload-image", {method:"POST", body: fd});
+      if(!r.ok){ alert("Upload failed"); return; }
+      const j = await r.json();
+      const a = getAtPath(model, path) || [];
+      a.push(j.url || "");
+      setAtPath(model, path, a);
+      renderEasy(model);
+      syncEditorFromModel();
+      picker.value = "";
+    };
+    picker.click();
+  }}, ["Upload"]);
+  addBar.appendChild(newUrl);
+  addBar.appendChild(addBtn);
+  addBar.appendChild(uploadBtn);
+
+  wrap.appendChild(grid);
+  wrap.appendChild(addBar);
   return wrap;
 }
 
-/* ---- Array<object> ---- */
+// Array<object>
 function renderObjectArray(path, arr){
   const wrap = el("div", {className:"field"});
   wrap.appendChild(el("label", {}, [labelFor(path)]));
@@ -277,13 +378,12 @@ function renderObjectArray(path, arr){
   return wrap;
 }
 
-/* ---- Object ---- */
+// Object group with ability to add fields
 function renderObject(path, obj){
   const wrap = el("div", {className:"objectGroup"});
   Object.keys(obj||{}).forEach(k=>{
     wrap.appendChild(buildNode(path.concat(k), obj[k]));
   });
-  // Allow adding a custom field
   const adder = el("div", {className:"addKey"});
   const keyIn = el("input", {placeholder:"Add new field (key)"});
   const btn = el("button", {type:"button", className:"btnSmall", onclick:()=>{
@@ -302,7 +402,7 @@ function renderObject(path, obj){
   return wrap;
 }
 
-/* ---- Fallback JSON leaf ---- */
+// Fallback JSON leaf editor
 function renderJSONLeaf(path, val){
   const wrap = el("div", {className:"field"});
   wrap.appendChild(el("label", {}, [labelFor(path)]));
@@ -315,7 +415,7 @@ function renderJSONLeaf(path, val){
   return wrap;
 }
 
-/* ---- Per-field upload ---- */
+// Per-field upload (string inputs)
 function uploadForField(inputEl){
   const picker = $("fileUpload");
   picker.onchange = async e=>{
@@ -326,7 +426,6 @@ function uploadForField(inputEl){
     if(!r.ok){ alert("Upload failed"); return; }
     const j = await r.json();
     inputEl.value = j.url || "";
-    // bubble: find path for this input (nearest field container stores data-path? not needed; the input listener will run)
     inputEl.dispatchEvent(new Event("input"));
     picker.value = "";
     alert("Uploaded. URL inserted.");
