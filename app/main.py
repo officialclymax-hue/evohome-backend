@@ -1,6 +1,4 @@
-# app/main.py
-# EvoHome FastAPI backend (robust seeding + owner-friendly admin)
-
+# app/main.py — EvoHome Backend (pages + block builder + existing CMS)
 import os, json, pathlib, smtplib, uuid, re
 from datetime import datetime, timedelta
 from typing import List, Optional, Dict, Any
@@ -16,9 +14,8 @@ from sqlalchemy import create_engine, Column, Integer, String, Text, JSON as SAJ
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-# ---------- Env ----------
-FRONTEND_ORIGINS = os.getenv("FRONTEND_ORIGINS") or os.getenv("FRONTEND_ORIGIN") \
-    or "https://evohome-improvements-gm0u.bolt.host,http://localhost:8000"
+# -------- Env
+FRONTEND_ORIGINS = os.getenv("FRONTEND_ORIGINS") or os.getenv("FRONTEND_ORIGIN") or "*"
 ALLOWED_ORIGINS = [s.strip() for s in FRONTEND_ORIGINS.split(",") if s.strip()]
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./local.db")
 
@@ -45,8 +42,8 @@ RATE_LIMIT_WINDOW_SEC = int(os.getenv("RATE_LIMIT_WINDOW_SEC", "60"))
 RATE_LIMIT_MAX = int(os.getenv("RATE_LIMIT_MAX", "20"))
 _RATE_BUCKET: Dict[str, List[datetime]] = {}
 
-# ---------- App ----------
-app = FastAPI(title="EvoHome Backend", version="1.0.3", docs_url="/docs", redoc_url="/redoc")
+# -------- App
+app = FastAPI(title="EvoHome Backend", version="1.1.0", docs_url="/docs", redoc_url="/redoc")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS or ["*"],
@@ -60,7 +57,7 @@ if pathlib.Path("admin_static").exists():
 if UPLOADS_DIR.exists():
     app.mount("/uploads", StaticFiles(directory=str(UPLOADS_DIR)), name="uploads")
 
-# ---------- DB ----------
+# -------- DB
 Base = declarative_base()
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {})
 SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
@@ -100,14 +97,14 @@ class GalleryItem(Base):
 
 Base.metadata.create_all(bind=engine)
 
-# ---------- Schemas ----------
+# -------- Schemas
 class AdminLogin(BaseModel): email: EmailStr; password: str
 class LeadSchema(BaseModel):
     name: str; email: EmailStr
     phone: Optional[str] = ""; postcode: Optional[str] = ""; service: Optional[str] = ""
     message: Optional[str] = ""; source: Optional[str] = "website"
 
-# ---------- Helpers ----------
+# -------- Helpers
 def db_sess(): return SessionLocal()
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy(); expire = datetime.utcnow() + (expires_delta or timedelta(minutes=JWT_EXPIRE_MINUTES))
@@ -115,16 +112,25 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
 def verify_token(token: str):
     try: return jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGO])
     except JWTError: return None
-def require_admin(request: Request):
+def _is_admin(request: Request):
     auth = request.headers.get("authorization") or ""
-    if not auth.startswith("Bearer "): raise HTTPException(401, "Missing token")
-    payload = verify_token(auth.split(" ",1)[1])
-    if not payload or payload.get("sub")!="admin": raise HTTPException(401, "Invalid token")
+    if auth.startswith("Bearer "):
+        payload = verify_token(auth.split(" ",1)[1])
+        if payload and payload.get("sub")=="admin": return True
+    token = request.query_params.get("token")
+    if token:
+        payload = verify_token(token)
+        if payload and payload.get("sub")=="admin": return True
+    return False
+def require_admin(request: Request):
+    if not _is_admin(request): raise HTTPException(401, "Invalid or missing admin token")
     return True
+
 def rate_limiter(request: Request):
     if request.method in {"POST","PUT","DELETE"}:
+        now=datetime.utcnow()
         ip = request.client.host if request.client else "0.0.0.0"; key=f"{ip}:{request.url.path}"
-        now=datetime.utcnow(); win=now-timedelta(seconds=RATE_LIMIT_WINDOW_SEC)
+        win=now-timedelta(seconds=RATE_LIMIT_WINDOW_SEC)
         kept=[t for t in _RATE_BUCKET.get(key,[]) if t>win]
         if len(kept)>=RATE_LIMIT_MAX: raise HTTPException(429, "Too many requests; slow down.")
         kept.append(now); _RATE_BUCKET[key]=kept
@@ -140,18 +146,18 @@ def slugify(s: str) -> str:
     s = re.sub(r"[^a-z0-9]+", "-", s).strip("-")
     return s or uuid.uuid4().hex[:8]
 
-# ---------- Auth ----------
+# -------- Auth
 @app.post("/auth/login")
 def auth_login(body: AdminLogin = Body(...)):
     if body.email.lower()!=ADMIN_EMAIL.lower() or body.password!=ADMIN_PASSWORD:
         raise HTTPException(401, "Invalid credentials")
     return {"access_token": create_access_token({"sub":"admin","email":ADMIN_EMAIL}), "token_type":"bearer"}
 
-# ---------- Health ----------
+# -------- Health
 @app.get("/health")
 def health(): return {"status":"ok","time":datetime.utcnow().isoformat()}
 
-# ---------- Singletons ----------
+# -------- Singletons
 @app.get("/content/{key}")
 def get_content(key: str):
     db=db_sess(); row=db.query(Content).filter(Content.key==key).first(); db.close()
@@ -165,7 +171,7 @@ def save_content(key: str, body: Dict[str,Any]=Body(...)):
     else: db.add(Content(key=key, data=body))
     db.commit(); db.close(); return {"ok":True}
 
-# ---------- Services ----------
+# -------- Collections (services/blogs/gallery)
 @app.get("/services")
 def list_services():
     db=db_sess(); items=db.query(ServiceItem).all()
@@ -178,23 +184,20 @@ def save_services(body: Any = Body(...)):
     if isinstance(body, list):
         db.query(ServiceItem).delete()
         for o in body:
-            o = o or {}
-            slug = o.get("slug") or slugify(o.get("name",""))
-            db.add(ServiceItem(slug=slug, name=o.get("name",""), category=o.get("category",""), data=o))
+            o=o or{}
+            slug=o.get("slug") or slugify(o.get("name",""))
+            db.add(ServiceItem(slug=slug,name=o.get("name",""),category=o.get("category",""),data=o))
         db.commit(); db.close(); return {"ok":True,"count":len(body)}
     if isinstance(body, dict):
-        slug = body.get("slug") or slugify(body.get("name",""))
+        slug=body.get("slug") or slugify(body.get("name",""))
         row=db.query(ServiceItem).filter(ServiceItem.slug==slug).first()
         if row:
-            row.name = body.get("name", row.name)
-            row.category = body.get("category", row.category)
-            row.data = body
+            row.name=body.get("name",row.name); row.category=body.get("category",row.category); row.data=body
         else:
-            db.add(ServiceItem(slug=slug, name=body.get("name",""), category=body.get("category",""), data=body))
+            db.add(ServiceItem(slug=slug,name=body.get("name",""),category=body.get("category",""),data=body))
         db.commit(); db.close(); return {"ok":True}
     raise HTTPException(400,"Invalid body")
 
-# ---------- Blogs ----------
 @app.get("/blogs")
 def list_blogs():
     db=db_sess(); items=db.query(BlogPost).all()
@@ -207,22 +210,18 @@ def save_blogs(body: Any = Body(...)):
     if isinstance(body, list):
         db.query(BlogPost).delete()
         for o in body:
-            o = o or {}
-            slug = o.get("slug") or slugify(o.get("title",""))
-            db.add(BlogPost(slug=slug, title=o.get("title",""), data=o))
+            o=o or{}
+            slug=o.get("slug") or slugify(o.get("title",""))
+            db.add(BlogPost(slug=slug,title=o.get("title",""),data=o))
         db.commit(); db.close(); return {"ok":True,"count":len(body)}
     if isinstance(body, dict):
-        slug = body.get("slug") or slugify(body.get("title",""))
+        slug=body.get("slug") or slugify(body.get("title",""))
         row=db.query(BlogPost).filter(BlogPost.slug==slug).first()
-        if row:
-            row.title = body.get("title", row.title)
-            row.data = body
-        else:
-            db.add(BlogPost(slug=slug, title=body.get("title",""), data=body))
+        if row: row.title=body.get("title",row.title); row.data=body
+        else: db.add(BlogPost(slug=slug,title=body.get("title",""),data=body))
         db.commit(); db.close(); return {"ok":True}
     raise HTTPException(400,"Invalid body")
 
-# ---------- Gallery ----------
 @app.get("/gallery")
 def list_gallery():
     db=db_sess(); items=db.query(GalleryItem).all()
@@ -235,220 +234,116 @@ def save_gallery(body: Any = Body(...)):
     if isinstance(body, list):
         db.query(GalleryItem).delete()
         for o in body:
-            db.add(GalleryItem(title=o.get("title",""), category=o.get("category",""), data=o))
+            db.add(GalleryItem(title=o.get("title",""),category=o.get("category",""),data=o))
         db.commit(); db.close(); return {"ok":True,"count":len(body)}
     if isinstance(body, dict):
-        db.add(GalleryItem(title=body.get("title",""), category=body.get("category",""), data=body))
+        db.add(GalleryItem(title=body.get("title",""),category=body.get("category",""),data=body))
         db.commit(); db.close(); return {"ok":True}
     raise HTTPException(400,"Invalid body")
 
-# ---------- Defaults used if seed_data/ missing ----------
-def _defaults():
-    return {
-      "singletons": {
-        "homepage": {
-          "seo": {"title":"EvoHome Improvements","description":"Home improvements made simple.","keywords":"home, solar, windows"},
-          "hero":{"title":"WELCOME TO EVOHOME IMPROVEMENTS","subtitle":"Vetted specialists. Expert advice. Complete protection.","primaryCta":{"label":"Request Free Quote","href":"/request-quote"},"images":[]}
-        },
-        "header": {
-          "logo":{"images":[],"alt":"EvoHome"},"brand":"EvoHome Improvements",
-          "navigation":[{"label":"Home","href":"/"},{"label":"Services","href":"/services"},{"label":"Request Quote","href":"/request-quote","isPrimary":True}],
-          "phone":"0333 004 0195","ctaButtons":[{"label":"Request Free Quote","href":"/request-quote"},{"label":"Call","href":"tel:03330040195"}]
-        },
-        "footer": {
-          "company":{"name":"EvoHome Improvements Ltd","companyNumber":"14881322","images":[]},
-          "contact":{"phone":"0333 004 0195","email":"office@evohomeimprovements.co.uk","images":[]},
-          "coverageAreas":{"primary":["Hampshire","Surrey","Sussex","Dorset","Wiltshire"],"images":[]},
-          "copyright":"© {{year}} EvoHome Improvements Ltd. All rights reserved."
+# -------- Page Builder (blocks)
+BLOCK_DEFS = {
+    # simple content blocks
+    "hero": {
+        "label":"Hero",
+        "fields":{
+            "title":{"type":"text","label":"Title"},
+            "subtitle":{"type":"textarea","label":"Subtitle"},
+            "ctaLabel":{"type":"text","label":"Button label"},
+            "ctaHref":{"type":"text","label":"Button link"},
+            "images":{"type":"images","label":"Images"}
         }
-      },
-      "arrays": {
-        "services":[
-          {"slug":"solar-power","name":"Solar Power","category":"renewable","images":["https://images.pexels.com/photos/9875441/pexels-photo-9875441.jpeg"]},
-          {"slug":"windows-doors","name":"Windows & Doors","category":"improvements","images":["https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg"]}
-        ],
-        "blogs":[
-          {"slug":"complete-guide-solar-power-uk-homes-2025","title":"The Complete Guide to Solar Power for UK Homes in 2025","image":"https://images.pexels.com/photos/9875441/pexels-photo-9875441.jpeg","excerpt":"Savings, grants and how it works.","date":"2025-01-15","author":"EvoHome Team","category":"Solar Power","images":["https://images.pexels.com/photos/9875441/pexels-photo-9875441.jpeg"]}
-        ],
-        "gallery":[
-          {"slug":"g-solar-1","title":"Residential Solar Installation","category":"Solar Power","src":"https://images.pexels.com/photos/9875441/pexels-photo-9875441.jpeg","images":["https://images.pexels.com/photos/9875441/pexels-photo-9875441.jpeg"],"alt":"Solar on a roof"}
-        ]
-      }
-    }
+    },
+    "text": {
+        "label":"Text",
+        "fields":{"html":{"type":"textarea","label":"HTML / text"}}
+    },
+    "image": {
+        "label":"Image",
+        "fields":{"src":{"type":"image","label":"Image URL"},"alt":{"type":"text","label":"Alt"}}
+    },
+    "columns": {
+        "label":"Columns (2)",
+        "fields":{
+            "left":{"type":"textarea","label":"Left HTML"},
+            "right":{"type":"textarea","label":"Right HTML"}
+        }
+    },
+    "cta": {
+        "label":"CTA Banner",
+        "fields":{
+            "text":{"type":"text","label":"Text"},
+            "button":{"type":"text","label":"Button label"},
+            "href":{"type":"text","label":"Link"},
+            "images":{"type":"images","label":"Background images"}
+        }
+    },
+    "serviceCards": {
+        "label":"Service Cards",
+        "fields":{
+            "heading":{"type":"text","label":"Heading"},
+            "items":{"type":"list","label":"Cards (from /services)", "item":"serviceRef"}
+        }
+    },
+    "features": {
+        "label":"Features list",
+        "fields":{
+            "heading":{"type":"text","label":"Heading"},
+            "items":{"type":"list","label":"Items (text)", "item":"text"}
+        }
+    },
+    "faq": {
+        "label":"FAQ",
+        "fields":{
+            "items":{"type":"list","label":"Q&As","item":"qa"} # {q,a}
+        }
+    },
+    "testimonials":{
+        "label":"Testimonials",
+        "fields":{
+            "items":{"type":"list","item":"testimonial"} # {quote,author,role,image?}
+        }
+    },
+    "galleryStrip":{
+        "label":"Gallery Strip",
+        "fields":{"count":{"type":"number","label":"How many?"},"category":{"type":"text","label":"Category filter"}}
+    },
+    "spacer": {"label":"Spacer","fields":{"size":{"type":"number","label":"Height (px)"}}},
+    "divider":{"label":"Divider","fields":{}},
+    "map":{"label":"Map (iframe)","fields":{"src":{"type":"text","label":"Embed URL"}}},
+    "video":{"label":"Video (iframe)","fields":{"src":{"type":"text","label":"Embed URL"}}},
+    "form":{"label":"Lead Form","fields":{"heading":{"type":"text","label":"Heading"}}}
+}
 
-# ---------- Robust normalizer for array seed files ----------
-def _normalize_array(name: str, raw: Any) -> List[dict]:
-    """
-    Accepts:
-      - a list of dicts (preferred)
-      - a list of strings
-      - a dict with a list under keys: name/items/data/list/rows/entries/records
-      - a dict mapping slug->object OR slug->string
-    Returns a list of dicts with required fields present.
-    """
-    # If dict wrapper with a list inside
-    if isinstance(raw, dict):
-        for key in (name, "items", "data", "list", "rows", "entries", "records"):
-            v = raw.get(key)
-            if isinstance(v, list):
-                raw = v
-                break
-        else:
-            # dict keyed by slug/title
-            tmp = []
-            ok = True
-            for k, v in raw.items():
-                if isinstance(v, dict):
-                    item = dict(v)
-                    if name == "services":
-                        item.setdefault("name", item.get("title") or k)
-                        item.setdefault("slug", item.get("slug") or k or slugify(item.get("name","")))
-                    elif name == "blogs":
-                        item.setdefault("title", item.get("name") or k)
-                        item.setdefault("slug", item.get("slug") or k or slugify(item.get("title","")))
-                    else:  # gallery
-                        item.setdefault("title", item.get("name") or k)
-                        item.setdefault("slug", item.get("slug") or slugify(item.get("title","")))
-                    tmp.append(item)
-                elif isinstance(v, str):
-                    if name == "services":
-                        tmp.append({"slug": slugify(k), "name": v})
-                    elif name == "blogs":
-                        tmp.append({"slug": slugify(k), "title": v})
-                    else:
-                        tmp.append({"slug": slugify(k), "title": v})
-                else:
-                    ok = False
-            raw = tmp if ok else []
+def _page_key(slug:str)->str: return f"page:{slug}"
 
-    # Ensure list
-    if not isinstance(raw, list):
-        raw = []
+@app.get("/blocks/definitions")
+def blocks_definitions(): return BLOCK_DEFS
 
-    out: List[dict] = []
-    for item in raw:
-        if isinstance(item, dict):
-            i = dict(item)
-            if name == "services":
-                i.setdefault("name", i.get("title",""))
-                i.setdefault("slug", i.get("slug") or slugify(i.get("name","")))
-            elif name == "blogs":
-                i.setdefault("title", i.get("name",""))
-                i.setdefault("slug", i.get("slug") or slugify(i.get("title","")))
-            else:  # gallery
-                i.setdefault("title", i.get("name",""))
-                i.setdefault("slug", i.get("slug") or slugify(i.get("title","")))
-            out.append(i)
-        elif isinstance(item, str):
-            if name == "services":
-                out.append({"slug": slugify(item), "name": item})
-            elif name == "blogs":
-                out.append({"slug": slugify(item), "title": item})
-            else:
-                out.append({"slug": slugify(item), "title": item})
-        # ignore other types
-    return out
+@app.get("/pages")
+def list_pages():
+    db=db_sess(); keys=[r.key for r in db.query(Content.key).all()]; db.close()
+    pages=[k.split("page:",1)[1] for k in keys if k.startswith("page:")]
+    return {"pages": pages}
 
-# ---------- Seed ----------
-@app.post("/seed", dependencies=[Depends(require_admin)])
-def seed():
-    report = {"used_folder": False, "bootstrapped": False, "singletons": [], "arrays": [], "errors": []}
-    base = pathlib.Path("seed_data")
-    db = db_sess()
-    try:
-        if base.exists():
-            report["used_folder"] = True
-            array_names = {"services","blogs","gallery"}
+@app.get("/pages/{slug}")
+def get_page(slug: str):
+    db=db_sess(); row=db.query(Content).filter(Content.key==_page_key(slug)).first(); db.close()
+    if not row: return {"slug": slug, "blocks": []}
+    data = row.data or {}
+    return {"slug": slug, "blocks": data.get("blocks", [])}
 
-            # Singletons
-            for f in base.glob("*.json"):
-                name = f.stem
-                try:
-                    data = json.loads(f.read_text(encoding="utf-8"))
-                except Exception as e:
-                    report["errors"].append(f"{f.name}: {e}")
-                    continue
-                if name in array_names:
-                    continue
-                row = db.query(Content).filter(Content.key==name).first()
-                if row: row.data = data
-                else: db.add(Content(key=name, data=data))
-                report["singletons"].append(name)
+@app.post("/pages/{slug}", dependencies=[Depends(require_admin)])
+def save_page(slug: str, body: Dict[str,Any]=Body(...)):
+    if "blocks" not in body or not isinstance(body["blocks"], list):
+        raise HTTPException(400, "Body must have 'blocks': []")
+    db=db_sess()
+    row=db.query(Content).filter(Content.key==_page_key(slug)).first()
+    if row: row.data = {"blocks": body["blocks"]}
+    else: db.add(Content(key=_page_key(slug), data={"blocks": body["blocks"]}))
+    db.commit(); db.close(); return {"ok": True}
 
-            # Arrays
-            def load_array(name, model):
-                p = base / f"{name}.json"
-                if not p.exists(): return
-                try:
-                    raw = json.loads(p.read_text(encoding="utf-8"))
-                    arr = _normalize_array(name, raw)
-                except Exception as e:
-                    report["errors"].append(f"{p.name}: {e}")
-                    return
-                db.query(model).delete()
-                if name=="services":
-                    for o in arr:
-                        db.add(ServiceItem(slug=o.get("slug",""), name=o.get("name",""), category=o.get("category",""), data=o))
-                elif name=="blogs":
-                    for o in arr:
-                        db.add(BlogPost(slug=o.get("slug",""), title=o.get("title",""), data=o))
-                elif name=="gallery":
-                    for o in arr:
-                        db.add(GalleryItem(title=o.get("title",""), category=o.get("category",""), data=o))
-                report["arrays"].append({"name": name, "count": len(arr)})
-
-            load_array("services", ServiceItem)
-            load_array("blogs", BlogPost)
-            load_array("gallery", GalleryItem)
-
-        else:
-            # Fallback: defaults
-            defs = _defaults(); report["bootstrapped"]=True
-            for k,v in defs["singletons"].items():
-                row = db.query(Content).filter(Content.key==k).first()
-                if row: row.data = v
-                else: db.add(Content(key=k, data=v))
-                report["singletons"].append(k)
-            db.query(ServiceItem).delete()
-            for o in defs["arrays"]["services"]:
-                db.add(ServiceItem(slug=o["slug"], name=o["name"], category=o.get("category",""), data=o))
-            db.query(BlogPost).delete()
-            for o in defs["arrays"]["blogs"]:
-                db.add(BlogPost(slug=o["slug"], title=o["title"], data=o))
-            db.query(GalleryItem).delete()
-            for o in defs["arrays"]["gallery"]:
-                db.add(GalleryItem(title=o["title"], category=o.get("category",""), data=o))
-            report["arrays"] = [
-                {"name":"services","count":len(defs['arrays']['services'])},
-                {"name":"blogs","count":len(defs['arrays']['blogs'])},
-                {"name":"gallery","count":len(defs['arrays']['gallery'])}
-            ]
-        db.commit()
-    except Exception as e:
-        db.rollback(); report["errors"].append(str(e))
-    finally:
-        db.close()
-    return {"ok": len(report["errors"])==0, "report": report}
-
-# ---------- Debug ----------
-@app.get("/debug/seed-files", dependencies=[Depends(require_admin)])
-def debug_seed_files():
-    base = pathlib.Path("seed_data")
-    if not base.exists(): return {"exists": False, "files": []}
-    files = [{"name": f.name, "size": f.stat().st_size} for f in base.glob("*.json")]
-    return {"exists": True, "files": files}
-
-@app.get("/debug/seed-validate", dependencies=[Depends(require_admin)])
-def debug_seed_validate():
-    base = pathlib.Path("seed_data")
-    if not base.exists(): return {"exists": False, "results": []}
-    results=[]
-    for f in base.glob("*.json"):
-        try: json.loads(f.read_text(encoding="utf-8")); results.append({"name": f.name, "valid": True})
-        except Exception as e: results.append({"name": f.name, "valid": False, "error": str(e)})
-    return {"exists": True, "results": results}
-
-# ---------- Upload ----------
+# -------- Upload
 @app.post("/upload-image")
 async def upload_image(file: UploadFile = File(...)):
     content = await file.read()
@@ -467,7 +362,7 @@ async def upload_image(file: UploadFile = File(...)):
     dest = UPLOADS_DIR / key; dest.write_bytes(content)
     return {"url": f"/uploads/{key}", "provider":"local"}
 
-# ---------- Lead ----------
+# -------- Lead
 @app.post("/lead")
 def create_lead(lead: LeadSchema):
     db=db_sess()
@@ -485,6 +380,6 @@ def create_lead(lead: LeadSchema):
     except Exception as e: print("[Lead email failed]", e)
     return {"ok": True, "message": "Lead received."}
 
-# ---------- Root ----------
+# -------- Root
 @app.get("/")
 def root(): return {"detail":"EvoHome backend running","docs":"/docs","admin":"/admin"}
