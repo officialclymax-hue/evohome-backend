@@ -1,0 +1,40 @@
+{
+  "blocks": [
+    {
+      "type": "hero",
+      "props": {
+        "title": "Services",
+        "subtitle": "Renewables • Exteriors • Interiors • Heating • Insulation",
+        "images": []
+      }
+    },
+    {
+      "type": "serviceCards",
+      "props": {
+        "heading": "Browse services",
+        "items": [
+          "solar-panels",
+          "air-source-heat-pump",
+          "battery-storage",
+          "ev-chargers",
+          "roofing",
+          "flat-roofing",
+          "driveway-paving",
+          "windows",
+          "doors",
+          "kitchen-installation",
+          "bathroom-renovation",
+          "loft-insulation"
+        ]
+      }
+    },
+    {
+      "type": "cta",
+      "props": {
+        "text": "Can’t find what you need? We’ll help.",
+        "button": "Request a Quote",
+        "href": "/request-quote"
+      }
+    }
+  ]
+}
