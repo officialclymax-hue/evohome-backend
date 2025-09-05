@@ -1,0 +1,74 @@
+{
+  "blocks": [
+    {
+      "type": "hero",
+      "props": {
+        "title": "THE SMARTER WAY\nTO IMPROVE YOUR HOME",
+        "subtitle": "Welcome to EvoHome Improvements",
+        "ctaHref": "/request-quote",
+        "ctaLabel": "Request Free Quote",
+        "images": [
+          "https://images.pexels.com/photos/9875419/pexels-photo-9875419.jpeg"
+        ]
+      }
+    },
+    {
+      "type": "features",
+      "props": {
+        "heading": "Why homeowners pick EvoHome",
+        "items": [
+          "FREE Expert Advice",
+          "FREE Quote Comparison",
+          "Vetted Specialists",
+          "100% Homeowner Protection",
+          "Quality Control",
+          "24 hr Response"
+        ]
+      }
+    },
+    {
+      "type": "serviceCards",
+      "props": {
+        "heading": "Popular Services",
+        "items": [
+          "solar-panels",
+          "air-source-heat-pump",
+          "windows",
+          "roofing",
+          "bathroom-renovation",
+          "kitchen-installation"
+        ]
+      }
+    },
+    {
+      "type": "galleryStrip",
+      "props": {
+        "count": 8,
+        "images": [
+          "https://images.pexels.com/photos/9875419/pexels-photo-9875419.jpeg",
+          "https://images.pexels.com/photos/9875441/pexels-photo-9875441.jpeg",
+          "https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg",
+          "https://images.pexels.com/photos/1396134/pexels-photo-1396134.jpeg",
+          "https://images.pexels.com/photos/5691659/pexels-photo-5691659.jpeg",
+          "https://images.pexels.com/photos/186077/pexels-photo-186077.jpeg",
+          "https://images.pexels.com/photos/1080721/pexels-photo-1080721.jpeg",
+          "https://images.pexels.com/photos/1454804/pexels-photo-1454804.jpeg"
+        ]
+      }
+    },
+    {
+      "type": "cta",
+      "props": {
+        "text": "Ready to compare quotes from vetted specialists?",
+        "button": "Get Free Quotes",
+        "href": "/request-quote"
+      }
+    },
+    {
+      "type": "form",
+      "props": {
+        "heading": "Request a Quote"
+      }
+    }
+  ]
+}
