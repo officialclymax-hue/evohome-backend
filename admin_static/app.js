@@ -1,412 +1,335 @@
-// admin_static/app.js — CMS + Page Builder + uploads
-const API_BASE = window.location.origin;
-let token = localStorage.getItem("ADMIN_JWT") || null;
+// admin_static/app.js — Non-technical "Easy mode" admin
+const API = location.origin;
+let token = null;           // JWT
+let current = null;         // { type: 'content'|'data', key: string }
+let model = null;           // current JSON object/array (live in Easy mode)
 
-const CONTENT_KEYS = ["homepage","header","about","contact","footer","coverage","seo","request-quote","forms","chatbot","floating-buttons"];
+const CONTENT_KEYS = [
+  "homepage","header","about","contact","footer","coverage",
+  "seo","request-quote","forms","chatbot","floating-buttons"
+];
 const DATA_KEYS = ["services","blogs","gallery"];
 
-const $ = id => document.getElementById(id);
+function $(id){ return document.getElementById(id); }
+function el(tag, props={}, children=[]) {
+  const n = document.createElement(tag);
+  Object.assign(n, props);
+  if(!Array.isArray(children)) children=[children];
+  children.forEach(c => c!=null && n.appendChild(typeof c==="string" ? document.createTextNode(c) : c));
+  return n;
+}
 
-// ---------- API ----------
-async function api(path, options = {}) {
+async function api(path, options={}) {
   const headers = options.headers || {};
-  if (token) headers["Authorization"] = "Bearer " + token;
-  if (options.body && !(options.body instanceof FormData) && !headers["Content-Type"]) {
+  if(token) headers.Authorization = "Bearer " + token;
+  // JSON auto header
+  if(options.body && !(options.body instanceof FormData) && !headers["Content-Type"])
     headers["Content-Type"] = "application/json";
-  }
-  const res = await fetch(API_BASE + path, { ...options, headers });
-  if (res.status === 401) { alert("Not authorized. Please log in again."); logout(); throw new Error("401"); }
+  const res = await fetch(API + path, {...options, headers});
   return res;
 }
 
-// ---------- AUTH ----------
-async function login() {
+/* ---------------- Login ---------------- */
+$("btnLogin").onclick = async ()=>{
   const email = $("email").value.trim();
-  const password = $("password").value.trim();
-  const res = await fetch(API_BASE + "/auth/login", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({email,password}) });
-  if (!res.ok){ $("loginMsg").innerText="Login failed"; return; }
-  const j = await res.json();
-  token = j.access_token; localStorage.setItem("ADMIN_JWT", token);
-  $("loginView").style.display="none"; $("appView").style.display="grid"; buildLists(); loadPages();
-}
-function logout(){ token=null; localStorage.removeItem("ADMIN_JWT"); $("appView").style.display="none"; $("builderView").style.display="none"; $("loginView").style.display="block"; }
-$("btnLogin").onclick = login; $("btnLogout").onclick = logout;
+  const password = $("password").value;
+  const r = await fetch(API+"/auth/login", {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({email,password})
+  });
+  if(!r.ok){ $("msg").textContent = "Login failed"; return; }
+  const j = await r.json(); token = j.access_token;
+  initUI();
+};
+$("btnLogout").onclick = ()=>{ token=null; current=null; model=null; $("auth").style.display=""; $("main").style.display="none"; };
+$("btnRefresh").onclick = ()=> initLists();
 
-// ---------- NAV between CMS and Builder ----------
-$("btnBuilder").onclick = ()=>{
-  const showBuilder = $("builderView").style.display === "none";
-  $("appView").style.display = showBuilder ? "none" : "grid";
-  $("builderView").style.display = showBuilder ? "grid" : "none";
-  if (showBuilder) loadPages();
+/* ---------------- UI ---------------- */
+function initUI(){
+  $("auth").style.display="none";
+  $("main").style.display="";
+  initLists();
+  // tabs
+  $("tabEasy").onclick = ()=>{ $("tabEasy").classList.add("active"); $("tabJSON").classList.remove("active"); $("easyPanel").style.display=""; $("jsonPanel").style.display="none"; };
+  $("tabJSON").onclick = ()=>{ $("tabJSON").classList.add("active"); $("tabEasy").classList.remove("active"); $("easyPanel").style.display="none"; $("jsonPanel").style.display=""; syncEditorFromModel(); };
+}
+function initLists(){
+  const cl = $("contentList"), dl = $("dataList");
+  cl.innerHTML=""; dl.innerHTML="";
+  CONTENT_KEYS.forEach(k=>{
+    const li = el("li", {className:"item", onclick: ()=>loadContent(k)}, [k]);
+    cl.appendChild(li);
+  });
+  DATA_KEYS.forEach(k=>{
+    const li = el("li", {className:"item", onclick: ()=>loadData(k)}, [k]);
+    dl.appendChild(li);
+  });
+}
+
+/* ---------------- Loaders ---------------- */
+async function loadContent(key){
+  current = {type:"content", key};
+  $("panelTitle").textContent = key;
+  const r = await api("/content/"+key);
+  if(!r.ok){ model = {}; } else { model = await r.json(); }
+  renderEasy(model);
+  // also keep JSON editor in sync
+  $("editor").value = JSON.stringify(model, null, 2);
+}
+async function loadData(key){
+  current = {type:"data", key};
+  $("panelTitle").textContent = key;
+  const r = await api("/"+key);
+  if(!r.ok){ model = []; } else { model = await r.json(); }
+  renderEasy(model);
+  $("editor").value = JSON.stringify(model, null, 2);
+}
+
+/* ---------------- Seed ---------------- */
+$("btnSeed").onclick = async ()=>{
+  const r = await api("/seed", {method:"POST"});
+  const j = await r.json().catch(()=>null);
+  alert("Seed result:\n"+JSON.stringify(j, null, 2));
 };
 
-// ---------- SIDEBAR (CMS) ----------
-function buildLists(){
-  $("listContent").innerHTML = CONTENT_KEYS.map(k=>`<li data-k="${k}">${k}</li>`).join("");
-  $("listData").innerHTML = DATA_KEYS.map(k=>`<li data-k="${k}">${k}</li>`).join("");
-  document.querySelectorAll("#listContent li, #listData li").forEach(li=>{
-    li.onclick = ()=> loadCollection(li.getAttribute("data-k"));
-  });
-}
-$("btnRefresh").onclick = buildLists;
-
-// ---------- STATE (CMS) ----------
-let currentKey = null;
-let currentData = null;
-let easyMode = true;
-
-$("modeEasy").onclick = ()=>{ easyMode=true; renderView(); };
-$("modeJson").onclick = ()=>{ easyMode=false; renderView(); };
-
-// ---------- LOAD (CMS) ----------
-async function loadCollection(k){
-  currentKey = k; $("colTitle").innerText = k;
-  try{
-    if (DATA_KEYS.includes(k)) {
-      const res = await api("/"+k); const raw = res.ok ? await res.json() : [];
-      currentData = normalizeArray(k, raw);
-      $("jsonBox").value = JSON.stringify(currentData, null, 2);
-    } else {
-      const res = await api("/content/"+k);
-      currentData = res.ok ? await res.json() : {};
-      $("jsonBox").value = res.ok ? JSON.stringify(currentData, null, 2) : "// Not found. Use Save to create content.";
-    }
-  }catch(e){ console.error(e); currentData = DATA_KEYS.includes(k) ? [] : {}; $("jsonBox").value="// Error loading"; }
-  renderView();
-}
-
-// ---------- RENDER (CMS) ----------
-function renderView(){
-  $("easyMode").style.display = easyMode ? "block" : "none";
-  $("jsonBox").style.display = easyMode ? "none" : "block";
-  $("btnSaveJson").style.display = easyMode ? "none" : "inline-flex";
-
-  $("formSingleton").style.display = "none";
-  $("cardsList").style.display = "none";
-  $("galleryGrid").style.display = "none";
-  $("btnAddItem").style.display = "none";
-  if (!currentKey) return;
-
-  if (DATA_KEYS.includes(currentKey)) {
-    if (currentKey === "gallery") renderGalleryGrid();
-    else renderCardsList();
-  } else {
-    renderSingletonForm();
+/* ---------------- Save / Import / Export ---------------- */
+$("btnSave").onclick = async ()=>{
+  if(!current) return alert("Pick something on the left.");
+  const payload = model; // Easy mode is the source of truth
+  let res;
+  if(current.type==="content"){
+    res = await api("/content/"+current.key, {method:"POST", body: JSON.stringify(payload)});
+  }else{
+    res = await api("/"+current.key, {method:"POST", body: JSON.stringify(payload)});
   }
+  if(!res.ok) return alert("Save failed ("+res.status+")");
+  alert("Saved!");
+};
+
+$("btnExport").onclick = ()=>{
+  if(!current) return;
+  const blob = new Blob([JSON.stringify(model, null, 2)], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = (current.key || "data") + ".json";
+  a.click();
+};
+$("btnImport").onclick = ()=> $("importFile").click();
+$("importFile").onchange = async e=>{
+  const f = e.target.files?.[0]; if(!f) return;
+  try{
+    const text = await f.text();
+    model = JSON.parse(text);
+    renderEasy(model);
+    $("editor").value = JSON.stringify(model, null, 2);
+  }catch(err){ alert("Bad JSON file: "+err.message); }
+};
+
+/* ---------------- JSON helpers ---------------- */
+$("btnFormat").onclick = ()=>{
+  try{
+    const obj = JSON.parse($("editor").value);
+    $("editor").value = JSON.stringify(obj, null, 2);
+    model = obj; // keep easy mode in sync
+    renderEasy(model);
+  }catch(e){ alert("Invalid JSON: "+e.message); }
+};
+function syncEditorFromModel(){
+  if(model==null) $("editor").value = "";
+  else $("editor").value = JSON.stringify(model, null, 2);
 }
 
-// ---------- SINGLETON FORM ----------
-function renderSingletonForm(){
-  const form = $("formSingleton"); form.innerHTML=""; $("formSingleton").style.display="block";
-  buildObjectForm(form, currentData, []);
-}
-function buildObjectForm(root, obj, path){
-  Object.keys(obj||{}).forEach(key=>{
-    const value = obj[key]; const fieldPath=[...path,key];
-    if (Array.isArray(value) && value.length && typeof value[0] === "string") {
-      const wrap = el('div','field'); wrap.appendChild(el('label',null,key+" (images)"));
-      const list = el('div'); list.style.display="grid"; list.style.gridTemplateColumns="repeat(auto-fill,minmax(120px,1fr))"; list.style.gap="8px";
-      value.forEach((url,idx)=>{
-        const item=el('div'); const img=el('img'); img.src=url; img.style.width="100%"; img.style.height="80px"; img.style.objectFit="cover"; img.style.borderRadius="8px";
-        const input=el('input'); input.type="text"; input.value=url; input.oninput=()=> setValue(fieldPath,idx,input.value);
-        const row=el('div','row'); const up=btn('↑',()=> moveArray(fieldPath,idx,idx-1)); const down=btn('↓',()=> moveArray(fieldPath,idx,idx+1));
-        const del=btn('Delete',()=>{ removeArray(fieldPath,idx); renderView(); }); del.className="ghost";
-        row.append(up,down,del); item.append(img,input,row); list.appendChild(item);
-      });
-      const add=btn('+ Add image',()=>{ const url=prompt("Paste image URL, or leave blank to upload"); if(url){ pushArray(fieldPath,url); renderView(); } else openUpload(u=>{ pushArray(fieldPath,u); renderView(); }); });
-      wrap.append(list,add); root.appendChild(wrap); return;
-    }
-    if (typeof value!=="object" || value===null){
-      const wrap=el('div','field'); let input;
-      if (typeof value==="boolean"){ input=el('input'); input.type="checkbox"; input.checked=value===true; input.onchange=()=> setPrimitive(fieldPath,input.checked); const row=el('div','switch'); row.append(el('span',null,key),input); wrap.append(row); }
-      else if(typeof value==="number"){ wrap.append(el('label',null,key)); input=el('input'); input.type="number"; input.value=value; input.oninput=()=> setPrimitive(fieldPath,parseFloat(input.value||"0")); wrap.append(input); }
-      else { wrap.append(el('label',null,key)); const long=(value && String(value).length>120)||String(value).includes("\n"); input=long?el('textarea'):el('input'); if(!long) input.type="text"; input.value=value??""; input.oninput=()=> setPrimitive(fieldPath,input.value); wrap.append(input); }
-      root.appendChild(wrap); return;
-    }
-    const group=el('div','field'); group.append(el('div','badge',key)); root.appendChild(group); buildObjectForm(root,value,fieldPath);
-  });
-  function setPrimitive(path,val){ let ref=currentData; for(let i=0;i<path.length-1;i++){ if(!ref[path[i]]||typeof ref[path[i]]!=='object') ref[path[i]]={}; ref=ref[path[i]];} ref[path.at(-1)]=val; $("jsonBox").value=JSON.stringify(currentData,null,2); }
-  function setValue(path,idx,val){ let ref=currentData; for(let i=0;i<path.length;i++) ref=ref[path[i]]; ref[idx]=val; $("jsonBox").value=JSON.stringify(currentData,null,2); }
-  function pushArray(path,val){ let ref=currentData; for(let i=0;i<path.length;i++) ref=ref[path[i]]; ref.push(val); $("jsonBox").value=JSON.stringify(currentData,null,2); }
-  function removeArray(path,idx){ let ref=currentData; for(let i=0;i<path.length;i++) ref=ref[path[i]]; ref.splice(idx,1); $("jsonBox").value=JSON.stringify(currentData,null,2); }
-  function moveArray(path,from,to){ let ref=currentData; for(let i=0;i<path.length;i++) ref=ref[path[i]]; if(to<0||to>=ref.length) return; const [it]=ref.splice(from,1); ref.splice(to,0,it); $("jsonBox").value=JSON.stringify(currentData,null,2); renderView(); }
+/* ---------------- EASY MODE RENDERER ----------------
+   Auto-builds forms from any JSON structure.
+   Strings -> input/textarea
+   Numbers -> number
+   Booleans -> checkbox
+   Arrays of strings -> multi-line textarea (one per line)
+   Arrays of objects -> list with per-item forms
+   Objects -> fieldset of children
+----------------------------------------------------- */
+function renderEasy(data){
+  const root = $("easyForm");
+  root.innerHTML = "";
+  if(data==null) { root.appendChild(el("em", {}, ["No data"])); return; }
+  const form = buildNode([], data);
+  root.appendChild(form);
 }
 
-// ---------- ARRAYS (services/blogs) ----------
-function renderCardsList(){
-  $("cardsList").innerHTML=""; $("cardsList").style.display="grid"; $("btnAddItem").style.display="inline-flex"; $("galleryGrid").style.display="none";
-  const arr = Array.isArray(currentData) ? currentData : [];
-  if (arr.length===0) $("cardsList").innerHTML=`<div class="muted">No ${currentKey} yet. Click “+ Add item”.</div>`;
-  arr.forEach((item,idx)=> $("cardsList").appendChild(makeCard(item,idx,currentKey)));
-  enableDnD($("cardsList"),(from,to)=>{ if(to<0||to>=currentData.length) return; const [it]=currentData.splice(from,1); currentData.splice(to,0,it); $("jsonBox").value=JSON.stringify(currentData,null,2); renderCardsList(); });
-  $("btnAddItem").onclick=()=>{ const blank=currentKey==="services"?{name:"",slug:"",category:"",image:"",images:[]}:{title:"",slug:"",author:"",date:"",excerpt:"",image:"",images:[],content:""}; currentData.push(blank); $("jsonBox").value=JSON.stringify(currentData,null,2); renderCardsList(); };
-}
-function makeCard(item,idx,type){
-  const c=el('div','card'); c.setAttribute("draggable","true"); c.dataset.index=idx;
-  const thumb=el('div','thumb'); const firstUrl=type==="blogs"?(item.image||(item.images&&item.images[0])||""):(item.image||(item.images&&item.images[0])||""); const img=el('img'); if(firstUrl) img.src=firstUrl; thumb.append(firstUrl?img:el('div','muted','No image')); c.append(thumb);
-  if(type==="services"){ c.append(field("Name",item.name||"",v=>{item.name=v;sync();})); c.append(field("Slug",item.slug||"",v=>{item.slug=v;sync();})); c.append(field("Category",item.category||"",v=>{item.category=v;sync();})); c.append(field("Cover image",item.image||"",v=>{item.image=v;sync();},true,u=>{item.image=u;sync();})); c.append(imagesField(item,v=>{item.images=v;sync();})); }
-  else { c.append(field("Title",item.title||"",v=>{item.title=v;sync();})); c.append(field("Slug",item.slug||"",v=>{item.slug=v;sync();})); c.append(field("Author",item.author||"",v=>{item.author=v;sync();})); c.append(field("Date (YYYY-MM-DD)",item.date||"",v=>{item.date=v;sync();})); c.append(textArea("Excerpt",item.excerpt||"",v=>{item.excerpt=v;sync();})); c.append(field("Cover image",item.image||"",v=>{item.image=v;sync();},true,u=>{item.image=u;sync();})); c.append(imagesField(item,v=>{item.images=v;sync();})); c.append(textArea("Content",item.content||"",v=>{item.content=v;sync();})); }
-  const row=el('div','row'); const handle=el('span','handle','⠿'); const del=btn('Delete',()=>{currentData.splice(idx,1);sync();renderCardsList();}); del.classList.add('del'); row.append(handle,del); c.append(row);
-  function sync(){ $("jsonBox").value=JSON.stringify(currentData,null,2); const u=type==="blogs"?(item.image||(item.images&&item.images[0])||""):(item.image||(item.images&&item.images[0])||""); if(u) img.src=u; }
-  return c;
+function buildNode(path, value){
+  if(typeof value === "string") return renderString(path, value);
+  if(typeof value === "number") return renderNumber(path, value);
+  if(typeof value === "boolean") return renderBoolean(path, value);
+  if(Array.isArray(value)){
+    if(value.every(v => typeof v === "string")) return renderStringArray(path, value);
+    if(value.every(v => typeof v === "object")) return renderObjectArray(path, value);
+    // mixed -> JSON textarea
+    return renderJSONLeaf(path, value);
+  }
+  if(typeof value === "object"){
+    return renderObject(path, value);
+  }
+  // unknown leaf -> JSON textarea
+  return renderJSONLeaf(path, value);
 }
 
-// ---------- GALLERY ----------
-function renderGalleryGrid(){
-  $("galleryGrid").innerHTML=""; $("galleryGrid").style.display="grid"; $("btnAddItem").style.display="inline-flex"; $("cardsList").style.display="none";
-  const arr=Array.isArray(currentData)?currentData:[]; if(arr.length===0) $("galleryGrid").innerHTML=`<div class="muted">No gallery items yet. Click “+ Add item”.</div>`;
-  arr.forEach((g,idx)=> $("galleryGrid").appendChild(makeGItem(g,idx)));
-  enableDnD($("galleryGrid"),(from,to)=>{ if(to<0||to>=currentData.length) return; const [it]=currentData.splice(from,1); currentData.splice(to,0,it); $("jsonBox").value=JSON.stringify(currentData,null,2); renderGalleryGrid(); });
-  $("btnAddItem").onclick=()=>{ currentData.push({title:"",category:"",src:"",images:[]}); $("jsonBox").value=JSON.stringify(currentData,null,2); renderGalleryGrid(); };
+/* ---- field pieces ---- */
+function labelFor(path){
+  const key = path[path.length-1] || (Array.isArray(path) ? "item" : "field");
+  return key.replace(/[-_]/g, " ").replace(/\b\w/g, m=>m.toUpperCase());
 }
-function makeGItem(g,idx){
-  const wrap=el('div','g-item'); wrap.setAttribute("draggable","true"); wrap.dataset.index=idx;
-  const t=el('div','thumb'); const img=el('img'); if(g.src) img.src=g.src; t.append(g.src?img:el('div','muted','No image'));
-  const title=field("Title",g.title||"",v=>{g.title=v;sync();}); const cat=field("Category",g.category||"",v=>{g.category=v;sync();});
-  const src=field("Image URL",g.src||"",v=>{g.src=v;sync();},true,u=>{g.src=u;sync();});
-  const actions=el('div','actions'); const del=btn('Delete',()=>{currentData.splice(idx,1);sync();renderGalleryGrid();}); del.classList.add('del'); actions.append(del);
-  wrap.append(t,title,cat,src,actions);
-  function sync(){ $("jsonBox").value=JSON.stringify(currentData,null,2); if(g.src) img.src=g.src; }
+function setAtPath(obj, path, v){
+  let cur = obj;
+  for(let i=0;i<path.length-1;i++){
+    const k = path[i];
+    if(cur[k]==null || typeof cur[k]!=="object") cur[k] = (typeof path[i+1]==="number" ? [] : {});
+    cur = cur[k];
+  }
+  cur[path[path.length-1]] = v;
+}
+function getAtPath(obj, path){
+  return path.reduce((o,k)=> (o==null?undefined:o[k]), obj);
+}
+
+/* ---- String ---- */
+function renderString(path, val){
+  const isLong = (val||"").length > 120 || labelFor(path).toLowerCase().includes("description");
+  const wrapper = el("div", {className:"field"});
+  wrapper.appendChild(el("label", {}, [labelFor(path)]));
+  const actions = el("div", {className:"inline"});
+  const input = isLong
+    ? el("textarea", {value: val || "", rows: 4})
+    : el("input", {value: val || "", type:"text"});
+  input.oninput = ()=> setAtPath(model, path, input.value);
+  actions.appendChild(input);
+
+  // Image helper buttons if the key looks like it holds an image/url
+  const lname = labelFor(path).toLowerCase();
+  if(lname.includes("image") || lname.includes("img") || lname.includes("src") || lname.includes("logo") || lname.includes("url")){
+    const btn = el("button", {type:"button", className:"btnSmall", onclick:()=>uploadForField(input)}, ["Upload"]);
+    actions.appendChild(btn);
+  }
+  wrapper.appendChild(actions);
+  return wrapper;
+}
+
+/* ---- Number ---- */
+function renderNumber(path, val){
+  const wrap = el("div", {className:"field"});
+  wrap.appendChild(el("label", {}, [labelFor(path)]));
+  const input = el("input", {type:"number", value: val});
+  input.oninput = ()=> setAtPath(model, path, Number(input.value));
+  wrap.appendChild(input);
   return wrap;
 }
 
-// ---------- COMMON UI HELPERS ----------
-function field(labelText,val,onInput,withUpload=false,onUploaded){ const f=el('div','field'); f.append(el('label',null,labelText)); const row=el('div','kv'); const input=el('input'); input.type="text"; input.value=val??""; input.oninput=()=> onInput(input.value); row.append(input); if(withUpload){ const up=btn('Upload',()=> openUpload(url=>{ input.value=url; onInput(url); if(onUploaded) onUploaded(url); })); row.append(up); } f.append(row); return f; }
-function textArea(labelText,val,onInput){ const f=el('div','field'); f.append(el('label',null,labelText)); const ta=el('textarea'); ta.value=val??""; ta.oninput=()=> onInput(ta.value); f.append(ta); return f; }
-function imagesField(item,set){ const f=el('div','field'); f.append(el('label',null,"Images (list)")); const cont=el('div'); cont.style.display="grid"; cont.style.gridTemplateColumns="repeat(auto-fill,minmax(120px,1fr))"; cont.style.gap="8px"; const arr=Array.isArray(item.images)?item.images:[]; arr.forEach((url,i)=>{ const box=el('div'); const img=el('img'); img.src=url; img.style.width="100%"; img.style.height="80px"; img.style.objectFit="cover"; img.style.borderRadius="8px"; const inp=el('input'); inp.type="text"; inp.value=url; inp.oninput=()=>{arr[i]=inp.value; set(arr); $("jsonBox").value=JSON.stringify(currentData,null,2);}; const row=el('div','row'); const up=btn('↑',()=>{ if(i>0){const[x]=arr.splice(i,1);arr.splice(i-1,0,x);set(arr);renderView();}}); const down=btn('↓',()=>{ if(i<arr.length-1){const[x]=arr.splice(i,1);arr.splice(i+1,0,x);set(arr);renderView();}}); const del=btn('Delete',()=>{arr.splice(i,1);set(arr);renderView();}); del.className="ghost"; row.append(up,down,del); box.append(img,inp,row); cont.append(box); }); const add=btn('+ Add image',()=>{ const url=prompt("Paste image URL, or leave blank to upload"); if(url){arr.push(url);set(arr);renderView();} else openUpload(u=>{arr.push(u);set(arr);renderView();}); }); f.append(cont,add); return f; }
-function enableDnD(container,onMove){ let dragIndex=null; container.querySelectorAll('[draggable="true"]').forEach(el=>{ el.addEventListener('dragstart',()=>{dragIndex=+el.dataset.index; el.classList.add('dragging');}); el.addEventListener('dragend',()=>{el.classList.remove('dragging'); dragIndex=null;}); }); container.addEventListener('dragover',e=> e.preventDefault()); container.addEventListener('drop',e=>{ e.preventDefault(); const target=e.target.closest('[draggable="true"]'); if(!target) return; const to=+target.dataset.index; if(dragIndex===null||isNaN(to)) return; onMove(dragIndex,to); }); }
-function el(tag,cls,text){ const n=document.createElement(tag); if(cls) n.className=cls; if(text!=null) n.textContent=text; return n; }
-function btn(label,fn){ const b=document.createElement("button"); b.textContent=label; b.className="ghost"; b.type="button"; b.onclick=fn; return b; }
-function slugify(s){ s=(s||"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,""); return s || Math.random().toString(36).slice(2,10); }
-
-// ---------- Upload ----------
-function openUpload(onDone){ $("uploadedUrl").value=""; $("fileUpload").value=""; $("uploadDlg").showModal(); $("doUpload").onclick=async()=>{ const file=$("fileUpload").files[0]; if(!file) return alert("Choose a file"); const fd=new FormData(); fd.append("file",file); const headers=token?{"Authorization":"Bearer "+token}:{};
-  const res=await fetch(API_BASE+"/upload-image",{method:"POST",body:fd,headers}); const j=await res.json(); $("uploadedUrl").value=j.url||"Upload failed"; if(j.url&&onDone) onDone(j.url); }; $("closeUpload").onclick=()=> $("uploadDlg").close(); }
-
-// ---------- Save (CMS) ----------
-$("btnSaveJson").onclick=async()=>{ if(!currentKey) return alert("Select a collection first"); let parsed; try{ parsed=JSON.parse($("jsonBox").value);}catch(e){return alert("Invalid JSON: "+e.message);} const url=DATA_KEYS.includes(currentKey)?"/"+currentKey:"/content/"+currentKey; const res=await api(url,{method:"POST",body:JSON.stringify(parsed)}); alert(res.ok?"Saved!":"Save failed: "+res.status); };
-$("btnSaveEasy").onclick=async()=>{ if(!currentKey) return alert("Select a collection first"); const url=DATA_KEYS.includes(currentKey)?"/"+currentKey:"/content/"+currentKey; const res=await api(url,{method:"POST",body:JSON.stringify(currentData)}); alert(res.ok?"Saved!":"Save failed: "+res.status); };
-$("btnExport").onclick=()=>{ if(!currentKey) return alert("Select a collection first"); const blob=new Blob([$("jsonBox").value],{type:"application/json"}); const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=currentKey+".json"; a.click(); };
-$("fileImport").onchange=async e=>{ if(!currentKey) return alert("Select a collection first"); const f=e.target.files[0]; if(!f) return; const text=await f.text(); try{ currentData=JSON.parse(text); $("jsonBox").value=JSON.stringify(currentData,null,2); renderView(); }catch(err){ alert("Invalid JSON file: "+err.message); }};
-
-// ---------- Seed dialogs ----------
-$("btnSeed").onclick=()=> $("seedDlg").showModal(); $("closeSeed").onclick=()=> $("seedDlg").close();
-$("doSeed").onclick=async()=>{ $("seedOut").textContent="Seeding..."; const res=await api("/seed",{method:"POST"}); const j=await res.json().catch(()=>null); $("seedOut").textContent = j ? JSON.stringify(j.report,null,2) : "Seed failed: "+res.status; };
-
-// ---------- Normalizer for arrays ----------
-function normalizeArray(name, raw){
-  if (Array.isArray(raw)) return raw;
-  if (!raw || typeof raw !== "object") return [];
-  for (const key of [name,"items","data","list","rows","entries","records"]) if (Array.isArray(raw[key])) return raw[key];
-  const collect=obj=>{ const out=[]; if(Array.isArray(obj)) out.push(obj); else if(obj&&typeof obj==="object") for(const v of Object.values(obj)) out.push(...collect(v)); return out; };
-  const cands=collect(raw); if (cands.length) return cands.sort((a,b)=>b.length-a.length)[0];
-  const out=[]; for(const [k,v] of Object.entries(raw)){ if(typeof v==="string"){ if(name==="blogs") out.push({title:v,slug:slugify(k)}); else out.push({name:v,slug:slugify(k)});} else if(v&&typeof v==="object"){ const item={...v}; if(name==="blogs"){ item.title=item.title||item.name||k; item.slug=item.slug||slugify(item.title); item.images=item.images||[]; } else { item.name=item.name||item.title||k; item.slug=item.slug||slugify(item.name); item.images=item.images||[]; } out.push(item);} }
-  return out;
+/* ---- Boolean ---- */
+function renderBoolean(path, val){
+  const wrap = el("div", {className:"field"});
+  const input = el("input", {type:"checkbox", checked: !!val});
+  input.onchange = ()=> setAtPath(model, path, !!input.checked);
+  wrap.appendChild(el("label", {}, [input, " ", labelFor(path)]));
+  return wrap;
 }
 
-// -------------------------- PAGE BUILDER --------------------------
-let BLOCK_DEFS = {};
-let currentPageSlug = "homepage";
-let blocks = []; // array of {type, props}
-
-async function loadPages(){
-  // list pages
-  const list = await api("/pages"); const j = await list.json();
-  $("listPages").innerHTML = (j.pages||[]).map(p=>`<li data-p="${p}">${p}</li>`).join("");
-  document.querySelectorAll("#listPages li").forEach(li=>{
-    li.onclick = ()=> { $("pageSlug").value = li.getAttribute("data-p"); loadPage(); };
-  });
-
-  // defs
-  const defs = await api("/blocks/definitions"); BLOCK_DEFS = await defs.json();
-  renderPalette();
+/* ---- Array<string> ---- */
+function renderStringArray(path, arr){
+  const wrap = el("div", {className:"field"});
+  wrap.appendChild(el("label", {}, [labelFor(path)]));
+  const ta = el("textarea", {rows: Math.min(10, Math.max(3, arr.length+1))});
+  ta.value = (arr||[]).join("\n");
+  ta.oninput = ()=>{
+    const lines = ta.value.split("\n").map(s=>s.trim()).filter(Boolean);
+    setAtPath(model, path, lines);
+  };
+  wrap.appendChild(ta);
+  return wrap;
 }
 
-function renderPalette(){
-  const pal = $("palette"); pal.innerHTML = "";
-  Object.entries(BLOCK_DEFS).forEach(([type,def])=>{
-    const div = document.createElement("div");
-    div.className = "palette-item"; div.setAttribute("draggable","true"); div.dataset.type = type;
-    div.textContent = def.label || type;
-    pal.appendChild(div);
+/* ---- Array<object> ---- */
+function renderObjectArray(path, arr){
+  const wrap = el("div", {className:"field"});
+  wrap.appendChild(el("label", {}, [labelFor(path)]));
+  const list = el("div", {className:"list"});
+  (arr||[]).forEach((item, idx)=>{
+    const row = el("div", {className:"card"});
+    row.appendChild(el("div", {className:"rowHeader"}, [ (item.title||item.name||`Item ${idx+1}`) ]));
+    row.appendChild(buildNode(path.concat(idx), item));
+    const del = el("button", {type:"button", className:"danger", onclick:()=>{
+      const parent = getAtPath(model, path);
+      parent.splice(idx,1);
+      renderEasy(model);
+      syncEditorFromModel();
+    }}, ["Delete"]);
+    row.appendChild(del);
+    list.appendChild(row);
   });
-
-  // drag start from palette
-  pal.querySelectorAll(".palette-item").forEach(el=>{
-    el.addEventListener("dragstart", e=>{
-      e.dataTransfer.setData("text/plain", el.dataset.type);
-    });
-  });
-
-  // canvas drop
-  const canvas = $("canvas");
-  canvas.addEventListener("dragover", e=> e.preventDefault());
-  canvas.addEventListener("drop", e=>{
-    e.preventDefault();
-    const t = e.dataTransfer.getData("text/plain");
-    if (!t) return;
-    const def = BLOCK_DEFS[t] || {fields:{}};
-    const props = defaultPropsFor(def.fields);
-    blocks.push({type: t, props});
-    renderCanvas();
-  });
+  const add = el("button", {type:"button", className:"btnSmall", onclick:()=>{
+    const parent = getAtPath(model, path) || [];
+    parent.push({});
+    setAtPath(model, path, parent);
+    renderEasy(model);
+    syncEditorFromModel();
+  }}, ["+ Add item"]);
+  wrap.appendChild(list);
+  wrap.appendChild(add);
+  return wrap;
 }
 
-function defaultPropsFor(fields){
-  const o = {};
-  Object.entries(fields||{}).forEach(([k,v])=>{
-    if (v.type === "images") o[k] = [];
-    else if (v.type === "number") o[k] = 0;
-    else if (v.type === "list") o[k] = [];
-    else o[k] = "";
+/* ---- Object ---- */
+function renderObject(path, obj){
+  const wrap = el("div", {className:"objectGroup"});
+  Object.keys(obj||{}).forEach(k=>{
+    wrap.appendChild(buildNode(path.concat(k), obj[k]));
   });
-  return o;
+  // Allow adding a custom field
+  const adder = el("div", {className:"addKey"});
+  const keyIn = el("input", {placeholder:"Add new field (key)"});
+  const btn = el("button", {type:"button", className:"btnSmall", onclick:()=>{
+    const key = (keyIn.value||"").trim();
+    if(!key) return;
+    const tgt = getAtPath(model, path) || {};
+    if(!(key in tgt)) tgt[key] = "";
+    setAtPath(model, path, tgt);
+    renderEasy(model);
+    syncEditorFromModel();
+    keyIn.value="";
+  }}, ["Add field"]);
+  adder.appendChild(keyIn);
+  adder.appendChild(btn);
+  wrap.appendChild(adder);
+  return wrap;
 }
 
-$("btnLoadPage").onclick = loadPage;
-async function loadPage(){
-  currentPageSlug = ($("pageSlug").value || "homepage").trim();
-  $("builderTitle").innerText = currentPageSlug;
-  const res = await api("/pages/"+currentPageSlug);
-  const j = await res.json();
-  blocks = Array.isArray(j.blocks) ? j.blocks : [];
-  renderCanvas();
+/* ---- Fallback JSON leaf ---- */
+function renderJSONLeaf(path, val){
+  const wrap = el("div", {className:"field"});
+  wrap.appendChild(el("label", {}, [labelFor(path)]));
+  const ta = el("textarea", {rows:4, value: JSON.stringify(val, null, 2)});
+  ta.oninput = ()=>{
+    try{ setAtPath(model, path, JSON.parse(ta.value)); ta.style.borderColor="#ddd"; }
+    catch(e){ ta.style.borderColor="#f33"; }
+  };
+  wrap.appendChild(ta);
+  return wrap;
 }
 
-$("btnSavePage").onclick = async ()=>{
-  const res = await api("/pages/"+currentPageSlug, {method:"POST", body: JSON.stringify({blocks})});
-  alert(res.ok ? "Page saved!" : "Save failed: "+res.status);
-  loadPages();
-};
-
-function renderCanvas(){
-  const c = $("canvas");
-  c.innerHTML = "";
-  c.toggleAttribute("data-empty", blocks.length===0);
-  blocks.forEach((b, idx)=>{
-    const row = document.createElement("div");
-    row.className = "block"; row.setAttribute("draggable","true"); row.dataset.index = idx;
-
-    const title = document.createElement("div");
-    title.className = "b-title";
-    title.textContent = (BLOCK_DEFS[b.type]?.label) || b.type;
-
-    const actions = document.createElement("div");
-    actions.className = "b-actions";
-    const up = btn("↑", ()=> moveBlock(idx, idx-1));
-    const down = btn("↓", ()=> moveBlock(idx, idx+1));
-    const edit = btn("Edit", ()=> openInspector(idx));
-    const del = btn("Delete", ()=> { blocks.splice(idx,1); renderCanvas(); });
-    actions.append(up,down,edit,del);
-
-    row.append(title, actions);
-    c.appendChild(row);
-  });
-
-  enableDnD(c, (from,to)=>{
-    if (to < 0 || to >= blocks.length) return;
-    const [x] = blocks.splice(from,1); blocks.splice(to,0,x);
-    renderCanvas();
-  });
+/* ---- Per-field upload ---- */
+function uploadForField(inputEl){
+  const picker = $("fileUpload");
+  picker.onchange = async e=>{
+    const f = e.target.files?.[0];
+    if(!f) return;
+    const fd = new FormData(); fd.append("file", f);
+    const r = await api("/upload-image", {method:"POST", body: fd});
+    if(!r.ok){ alert("Upload failed"); return; }
+    const j = await r.json();
+    inputEl.value = j.url || "";
+    // bubble: find path for this input (nearest field container stores data-path? not needed; the input listener will run)
+    inputEl.dispatchEvent(new Event("input"));
+    picker.value = "";
+    alert("Uploaded. URL inserted.");
+  };
+  picker.click();
 }
-
-function moveBlock(from,to){
-  if (to < 0 || to >= blocks.length) return;
-  const [x] = blocks.splice(from,1); blocks.splice(to,0,x);
-  renderCanvas();
-}
-
-function openInspector(idx){
-  const block = blocks[idx];
-  const def = BLOCK_DEFS[block.type] || {fields:{}};
-  const form = $("inspectorForm"); form.innerHTML = "";
-  form.dataset.index = idx;
-
-  Object.entries(def.fields).forEach(([k,f])=>{
-    form.appendChild(fieldFor(block, k, f));
-  });
-
-  // helpers
-  function fieldFor(b, key, f){
-    const wrap = el('div','field'); wrap.append(el('label',null,(f.label||key)));
-    if (f.type === "textarea"){
-      const ta = document.createElement("textarea"); ta.value = b.props[key] || ""; ta.oninput = ()=>{ b.props[key] = ta.value; };
-      wrap.append(ta);
-    } else if (f.type === "number"){
-      const inp = document.createElement("input"); inp.type="number"; inp.value = b.props[key] ?? 0; inp.oninput=()=>{ b.props[key] = Number(inp.value||0); };
-      wrap.append(inp);
-    } else if (f.type === "image"){
-      const row = el('div','kv');
-      const inp = document.createElement("input"); inp.type="text"; inp.value = b.props[key] || ""; inp.oninput=()=>{ b.props[key] = inp.value; };
-      const up = btn("Upload", ()=> openUpload(url=>{ inp.value=url; b.props[key]=url; }));
-      row.append(inp, up); wrap.append(row);
-    } else if (f.type === "images"){
-      const cont = document.createElement("div"); cont.style.display="grid"; cont.style.gridTemplateColumns="repeat(auto-fill,minmax(120px,1fr))"; cont.style.gap="8px";
-      b.props[key] = Array.isArray(b.props[key]) ? b.props[key] : [];
-      b.props[key].forEach((url,i)=>{
-        const box=el('div'); const img=el('img'); img.src=url; img.style.width="100%"; img.style.height="80px"; img.style.objectFit="cover"; img.style.borderRadius="8px";
-        const inp = document.createElement("input"); inp.type="text"; inp.value=url; inp.oninput = ()=>{ b.props[key][i]=inp.value; };
-        const row = el('div','row'); const up = btn('↑',()=>{ if(i>0){ const [x]=b.props[key].splice(i,1); b.props[key].splice(i-1,0,x); openInspector(idx); }});
-        const down = btn('↓',()=>{ if(i<b.props[key].length-1){ const [x]=b.props[key].splice(i,1); b.props[key].splice(i+1,0,x); openInspector(idx); }});
-        const del = btn('Delete',()=>{ b.props[key].splice(i,1); openInspector(idx); }); del.className="ghost";
-        row.append(up,down,del); box.append(img, inp, row); cont.append(box);
-      });
-      const add = btn('+ Add image', ()=>{ const url=prompt("Paste image URL, or leave blank to upload"); if(url){ b.props[key].push(url); openInspector(idx);} else openUpload(u=>{ b.props[key].push(u); openInspector(idx); }); });
-      wrap.append(cont, add);
-    } else if (f.type === "list" && f.item === "qa"){
-      b.props[key] = Array.isArray(b.props[key]) ? b.props[key] : [];
-      const cont = document.createElement("div");
-      b.props[key].forEach((qa,i)=>{
-        const row = el('div','field');
-        row.append(field("Q", qa.q||"", v=>{ qa.q=v; }), textArea("A", qa.a||"", v=>{ qa.a=v; }));
-        const del = btn("Delete", ()=>{ b.props[key].splice(i,1); openInspector(idx); }); del.classList.add("del"); row.append(del);
-        cont.append(row);
-      });
-      const add = btn("+ Add QA", ()=>{ b.props[key].push({q:"",a:""}); openInspector(idx); });
-      wrap.append(cont, add);
-    } else if (f.type === "list" && f.item === "text"){
-      b.props[key] = Array.isArray(b.props[key]) ? b.props[key] : [];
-      const ul = document.createElement("div");
-      b.props[key].forEach((t,i)=>{
-        const row = el('div','kv');
-        const inp = document.createElement("input"); inp.type="text"; inp.value=t; inp.oninput=()=>{ b.props[key][i]=inp.value; };
-        const del = btn("Delete", ()=>{ b.props[key].splice(i,1); openInspector(idx); });
-        ul.append(inp, del);
-      });
-      const add = btn("+ Add item", ()=>{ b.props[key].push(""); openInspector(idx); });
-      wrap.append(ul, add);
-    } else if (f.type === "list" && f.item === "testimonial"){
-      b.props[key] = Array.isArray(b.props[key]) ? b.props[key] : [];
-      const cont = document.createElement("div");
-      b.props[key].forEach((t,i)=>{
-        const card = el('div','field');
-        card.append(field("Quote", t.quote||"", v=>{ t.quote=v; }),
-                    field("Author", t.author||"", v=>{ t.author=v; }),
-                    field("Role", t.role||"", v=>{ t.role=v; }),
-                    field("Image", t.image||"", v=>{ t.image=v; }, true, u=>{ t.image=u; }));
-        const del = btn("Delete", ()=>{ b.props[key].splice(i,1); openInspector(idx); }); del.classList.add("del");
-        card.append(del); cont.append(card);
-      });
-      const add = btn("+ Add testimonial", ()=>{ b.props[key].push({quote:"",author:"",role:"",image:""}); openInspector(idx); });
-      wrap.append(cont, add);
-    } else if (f.type === "list" && f.item === "serviceRef"){
-      b.props[key] = Array.isArray(b.props[key]) ? b.props[key] : [];
-      const cont = document.createElement("div");
-      b.props[key].forEach((srv,i)=>{
-        const row = el('div','kv');
-        const inp = document.createElement("input"); inp.type="text"; inp.placeholder="service slug"; inp.value=srv.slug||srv; inp.oninput=()=>{ b.props[key][i]={slug:inp.value}; };
-        const del = btn("Delete", ()=>{ b.props[key].splice(i,1); openInspector(idx); });
-        row.append(inp, del); cont.append(row);
-      });
-      const add = btn("+ Add service", ()=>{ b.props[key].push({slug:""}); openInspector(idx); });
-      wrap.append(cont, add);
-    } else {
-      const inp = document.createElement("input"); inp.type="text"; inp.value=b.props[key]||""; inp.oninput=()=>{ b.props[key]=inp.value; };
-      wrap.append(inp);
-    }
-    return wrap;
-  }
-}
-
-// auto-login view
-if (token) { $("loginView").style.display="none"; $("appView").style.display="grid"; buildLists(); loadPages(); }
