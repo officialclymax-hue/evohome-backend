@@ -1,7 +1,7 @@
 # app/main.py
-# EvoHome FastAPI backend (seed with report + debug + owner-friendly CMS support)
+# EvoHome FastAPI backend (robust seeding + owner-friendly admin)
 
-import os, json, pathlib, smtplib, uuid
+import os, json, pathlib, smtplib, uuid, re
 from datetime import datetime, timedelta
 from typing import List, Optional, Dict, Any
 
@@ -46,7 +46,7 @@ RATE_LIMIT_MAX = int(os.getenv("RATE_LIMIT_MAX", "20"))
 _RATE_BUCKET: Dict[str, List[datetime]] = {}
 
 # ---------- App ----------
-app = FastAPI(title="EvoHome Backend", version="1.0.2", docs_url="/docs", redoc_url="/redoc")
+app = FastAPI(title="EvoHome Backend", version="1.0.3", docs_url="/docs", redoc_url="/redoc")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS or ["*"],
@@ -135,6 +135,11 @@ async def _rl_mw(request: Request, call_next):
     except HTTPException as e: return Response(status_code=e.status_code, content=e.detail)
     return await call_next(request)
 
+def slugify(s: str) -> str:
+    s = (s or "").lower()
+    s = re.sub(r"[^a-z0-9]+", "-", s).strip("-")
+    return s or uuid.uuid4().hex[:8]
+
 # ---------- Auth ----------
 @app.post("/auth/login")
 def auth_login(body: AdminLogin = Body(...)):
@@ -174,14 +179,11 @@ def save_services(body: Any = Body(...)):
         db.query(ServiceItem).delete()
         for o in body:
             o = o or {}
-            slug = o.get("slug")
-            if not slug:
-                continue
+            slug = o.get("slug") or slugify(o.get("name",""))
             db.add(ServiceItem(slug=slug, name=o.get("name",""), category=o.get("category",""), data=o))
         db.commit(); db.close(); return {"ok":True,"count":len(body)}
     if isinstance(body, dict):
-        slug = body.get("slug")
-        if not slug: raise HTTPException(400,"slug required")
+        slug = body.get("slug") or slugify(body.get("name",""))
         row=db.query(ServiceItem).filter(ServiceItem.slug==slug).first()
         if row:
             row.name = body.get("name", row.name)
@@ -206,14 +208,11 @@ def save_blogs(body: Any = Body(...)):
         db.query(BlogPost).delete()
         for o in body:
             o = o or {}
-            slug = o.get("slug")
-            if not slug:
-                continue
+            slug = o.get("slug") or slugify(o.get("title",""))
             db.add(BlogPost(slug=slug, title=o.get("title",""), data=o))
         db.commit(); db.close(); return {"ok":True,"count":len(body)}
     if isinstance(body, dict):
-        slug = body.get("slug")
-        if not slug: raise HTTPException(400,"slug required")
+        slug = body.get("slug") or slugify(body.get("title",""))
         row=db.query(BlogPost).filter(BlogPost.slug==slug).first()
         if row:
             row.title = body.get("title", row.title)
@@ -243,7 +242,7 @@ def save_gallery(body: Any = Body(...)):
         db.commit(); db.close(); return {"ok":True}
     raise HTTPException(400,"Invalid body")
 
-# ---------- Seed (reads seed_data/ if present; else bootstraps defaults) ----------
+# ---------- Defaults used if seed_data/ missing ----------
 def _defaults():
     return {
       "singletons": {
@@ -277,6 +276,80 @@ def _defaults():
       }
     }
 
+# ---------- Robust normalizer for array seed files ----------
+def _normalize_array(name: str, raw: Any) -> List[dict]:
+    """
+    Accepts:
+      - a list of dicts (preferred)
+      - a list of strings
+      - a dict with a list under keys: name/items/data/list/rows/entries/records
+      - a dict mapping slug->object OR slug->string
+    Returns a list of dicts with required fields present.
+    """
+    # If dict wrapper with a list inside
+    if isinstance(raw, dict):
+        for key in (name, "items", "data", "list", "rows", "entries", "records"):
+            v = raw.get(key)
+            if isinstance(v, list):
+                raw = v
+                break
+        else:
+            # dict keyed by slug/title
+            tmp = []
+            ok = True
+            for k, v in raw.items():
+                if isinstance(v, dict):
+                    item = dict(v)
+                    if name == "services":
+                        item.setdefault("name", item.get("title") or k)
+                        item.setdefault("slug", item.get("slug") or k or slugify(item.get("name","")))
+                    elif name == "blogs":
+                        item.setdefault("title", item.get("name") or k)
+                        item.setdefault("slug", item.get("slug") or k or slugify(item.get("title","")))
+                    else:  # gallery
+                        item.setdefault("title", item.get("name") or k)
+                        item.setdefault("slug", item.get("slug") or slugify(item.get("title","")))
+                    tmp.append(item)
+                elif isinstance(v, str):
+                    if name == "services":
+                        tmp.append({"slug": slugify(k), "name": v})
+                    elif name == "blogs":
+                        tmp.append({"slug": slugify(k), "title": v})
+                    else:
+                        tmp.append({"slug": slugify(k), "title": v})
+                else:
+                    ok = False
+            raw = tmp if ok else []
+
+    # Ensure list
+    if not isinstance(raw, list):
+        raw = []
+
+    out: List[dict] = []
+    for item in raw:
+        if isinstance(item, dict):
+            i = dict(item)
+            if name == "services":
+                i.setdefault("name", i.get("title",""))
+                i.setdefault("slug", i.get("slug") or slugify(i.get("name","")))
+            elif name == "blogs":
+                i.setdefault("title", i.get("name",""))
+                i.setdefault("slug", i.get("slug") or slugify(i.get("title","")))
+            else:  # gallery
+                i.setdefault("title", i.get("name",""))
+                i.setdefault("slug", i.get("slug") or slugify(i.get("title","")))
+            out.append(i)
+        elif isinstance(item, str):
+            if name == "services":
+                out.append({"slug": slugify(item), "name": item})
+            elif name == "blogs":
+                out.append({"slug": slugify(item), "title": item})
+            else:
+                out.append({"slug": slugify(item), "title": item})
+        # ignore other types
+    return out
+
+# ---------- Seed ----------
 @app.post("/seed", dependencies=[Depends(require_admin)])
 def seed():
     report = {"used_folder": False, "bootstrapped": False, "singletons": [], "arrays": [], "errors": []}
@@ -286,6 +359,8 @@ def seed():
         if base.exists():
             report["used_folder"] = True
             array_names = {"services","blogs","gallery"}
+
+            # Singletons
             for f in base.glob("*.json"):
                 name = f.stem
                 try:
@@ -300,28 +375,34 @@ def seed():
                 else: db.add(Content(key=name, data=data))
                 report["singletons"].append(name)
 
+            # Arrays
             def load_array(name, model):
                 p = base / f"{name}.json"
                 if not p.exists(): return
-                try: arr = json.loads(p.read_text(encoding="utf-8"))
+                try:
+                    raw = json.loads(p.read_text(encoding="utf-8"))
+                    arr = _normalize_array(name, raw)
                 except Exception as e:
-                    report["errors"].append(f"{p.name}: {e}"); return
+                    report["errors"].append(f"{p.name}: {e}")
+                    return
                 db.query(model).delete()
                 if name=="services":
                     for o in arr:
-                        db.add(ServiceItem(slug=o.get("slug",""),name=o.get("name",""),category=o.get("category",""),data=o))
+                        db.add(ServiceItem(slug=o.get("slug",""), name=o.get("name",""), category=o.get("category",""), data=o))
                 elif name=="blogs":
                     for o in arr:
-                        db.add(BlogPost(slug=o.get("slug",""),title=o.get("title",""),data=o))
+                        db.add(BlogPost(slug=o.get("slug",""), title=o.get("title",""), data=o))
                 elif name=="gallery":
                     for o in arr:
-                        db.add(GalleryItem(title=o.get("title",""),category=o.get("category",""),data=o))
+                        db.add(GalleryItem(title=o.get("title",""), category=o.get("category",""), data=o))
                 report["arrays"].append({"name": name, "count": len(arr)})
 
             load_array("services", ServiceItem)
             load_array("blogs", BlogPost)
             load_array("gallery", GalleryItem)
+
         else:
+            # Fallback: defaults
             defs = _defaults(); report["bootstrapped"]=True
             for k,v in defs["singletons"].items():
                 row = db.query(Content).filter(Content.key==k).first()
@@ -337,9 +418,11 @@ def seed():
             db.query(GalleryItem).delete()
             for o in defs["arrays"]["gallery"]:
                 db.add(GalleryItem(title=o["title"], category=o.get("category",""), data=o))
-            report["arrays"] = [{"name":"services","count":len(defs['arrays']['services'])},
-                                {"name":"blogs","count":len(defs['arrays']['blogs'])},
-                                {"name":"gallery","count":len(defs['arrays']['gallery'])}]
+            report["arrays"] = [
+                {"name":"services","count":len(defs['arrays']['services'])},
+                {"name":"blogs","count":len(defs['arrays']['blogs'])},
+                {"name":"gallery","count":len(defs['arrays']['gallery'])}
+            ]
         db.commit()
     except Exception as e:
         db.rollback(); report["errors"].append(str(e))
