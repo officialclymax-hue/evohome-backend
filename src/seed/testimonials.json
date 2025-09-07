@@ -1,0 +1,32 @@
+[
+  {
+    "id": "t1",
+    "name": "Dean Butler",
+    "date": "2025-04-09T00:00:00.000Z",
+    "rating": 5,
+    "text": "Excellent service very professional. So impressed I recommend EvoHome to my cousin, he was happy with the job they done. Great communication throughout the process.",
+    "service": "Solar Installation",
+    "verified": true,
+    "savings": "£1,200/year"
+  },
+  {
+    "id": "t2",
+    "name": "Michelle Comrie (MJ)",
+    "date": "2025-01-16T00:00:00.000Z",
+    "rating": 5,
+    "text": "I was unfortunate to have a wall vent incorrectly fitted causing a leak. EvoHome sorted it quickly and professionally with no fuss. Excellent customer service.",
+    "service": "Roofing Repair",
+    "verified": true,
+    "savings": "Problem solved"
+  },
+  {
+    "id": "t3",
+    "name": "Jamie Walsh",
+    "date": "2024-10-08T00:00:00.000Z",
+    "rating": 5,
+    "text": "I'm a retrofit assessor and recommend EvoHome Improvements highly. This type of service is much needed in the UK home improvement industry.",
+    "service": "Heat Pump Assessment",
+    "verified": true,
+    "savings": "Professional service"
+  }
+]
