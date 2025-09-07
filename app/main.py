@@ -17,11 +17,19 @@ def load_json_data(filename):
         with open(filepath, 'r') as f:
             return json.load(f)
     except FileNotFoundError:
-        print(f"Error: {filepath} not found.")
+        app.logger.error(f"FileNotFoundError: {filepath} not found. Please ensure the file exists and the path is correct.")
         return None
-    except json.JSONDecodeError:
-        print(f"Error: Could not decode JSON from {filepath}.")
+    except json.JSONDecodeError as e:
+        app.logger.error(f"JSONDecodeError: Could not decode JSON from {filepath}. Error: {e}. Please check JSON syntax.")
         return None
+    except Exception as e:
+        app.logger.error(f"An unexpected error occurred while loading {filepath}: {e}")
+        return None
+
+# --- Basic Root Route (for testing app startup) ---
+@app.route('/', methods=['GET'])
+def root():
+    return "EvoHome Backend is running!", 200
 
 # --- API Endpoints for Frontend Data ---
 
