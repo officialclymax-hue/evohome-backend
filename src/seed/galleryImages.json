@@ -1,0 +1,5 @@
+[
+  { "id": "gal-1", "src": "https://images.pexels.com/photos/9875441/pexels-photo-9875441.jpeg", "alt": "Solar install", "category": "solar", "title": "Roof array" },
+  { "id": "gal-2", "src": "https://images.pexels.com/photos/9875419/pexels-photo-9875419.jpeg", "alt": "Heat pump", "category": "heat-pump", "title": "Outdoor unit" },
+  { "id": "gal-3", "src": "https://images.pexels.com/photos/1396134/pexels-photo-1396134.jpeg", "alt": "Driveway", "category": "driveways", "title": "Permeable block" }
+]
