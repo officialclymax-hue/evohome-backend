@@ -1,35 +1,26 @@
-# app/seed.py
-# run this script from the container if you want (not needed for Render web)
-import os, json, pathlib
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from app.main import Base, Content, DATABASE_URL
+import os
+import json
 
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {})
-SessionLocal = sessionmaker(bind=engine)
-Base.metadata.create_all(bind=engine)
+# This script can be used to validate or process seed data if needed.
+# For this setup, main.py directly reads the JSON files.
 
-def seed_dir(dirname="seed_data"):
-    p = pathlib.Path(dirname)
-    if not p.exists():
-        print("No seed_data directory")
-        return
-    db = SessionLocal()
-    for f in p.glob("*.json"):
-        try:
-            data = json.loads(f.read_text(encoding="utf8"))
-        except Exception as e:
-            print("Skipping", f.name, "error", e)
-            continue
-        key = f.stem
-        existing = db.query(Content).filter(Content.key==key).first()
-        if existing:
-            existing.data = data
-        else:
-            db.add(Content(key=key, data=data))
-        db.commit()
-        print("Seeded", key)
-    db.close()
+SEED_DATA_DIR = os.path.join(os.path.dirname(__file__), '..', 'seed_data')
 
-if __name__ == "__main__":
-    seed_dir()
+def validate_seed_data():
+    print("Validating seed data...")
+    for root, _, files in os.walk(SEED_DATA_DIR):
+        for file in files:
+            if file.endswith('.json'):
+                filepath = os.path.join(root, file)
+                try:
+                    with open(filepath, 'r') as f:
+                        json.load(f)
+                    print(f"  ✅ {file} is valid JSON.")
+                except json.JSONDecodeError:
+                    print(f"  ❌ {file} is NOT valid JSON.")
+                except Exception as e:
+                    print(f"  ⚠️ Error processing {file}: {e}")
+    print("Seed data validation complete.")
+
+if __name__ == '__main__':
+    validate_seed_data()
