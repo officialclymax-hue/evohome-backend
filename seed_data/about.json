@@ -1,39 +1,126 @@
 {
-  "file": "about.json",
-  "hero": {
-    "title": "About EvoHome Improvements",
-    "subtitle": "The Smarter Way to Improve Your Home",
-    "images": []
+  "whyEvoHome": [
+    {
+      "icon": "Eye",
+      "title": "Vetted & Verified Professionals",
+      "description": "We go far beyond online reviews. Every installer is fully vetted through insurance checks, qualification reviews, reference calls, and real-life project inspections.",
+      "image": "https://images.pexels.com/photos/5691654/pexels-photo-5691654.jpeg"
+    },
+    {
+      "icon": "Target",
+      "title": "Project Oversight",
+      "description": "EvoHome isn't just a matchmaking service — we stay involved throughout your project. From quote to final walkthrough, our team provides guidance and tracks progress.",
+      "image": "https://images.pexels.com/photos/1396125/pexels-photo-1396125.jpeg"
+    },
+    {
+      "icon": "Users",
+      "title": "Installer Support",
+      "description": "We don't just vet our installers — we work with them daily. From business support to products, materials, and training, we help them operate at their best.",
+      "image": "https://images.pexels.com/photos/5691655/pexels-photo-5691655.jpeg"
+    },
+    {
+      "icon": "HeartHandshake",
+      "title": "Impartial Expert Advice",
+      "description": "Get honest, expert guidance without pressure or bias. We help you make informed decisions that are right for your home and budget.",
+      "image": "https://images.pexels.com/photos/3737579/pexels-photo-3737579.jpeg"
+    },
+    {
+      "icon": "ShoppingCart",
+      "title": "Trusted Products & Solutions",
+      "description": "We work with a network of proven product providers who meet strict standards for quality and performance. Only reliable, long-lasting solutions.",
+      "image": "https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg"
+    },
+    {
+      "icon": "UserCheck",
+      "title": "Real Support, Not Just a Platform",
+      "description": "EvoHome isn't an automated system. Our real team supports you with personal help before, during, and after your project.",
+      "image": "https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg"
+    }
+  ],
+  "faqs": [
+    {
+      "question": "What is EvoHome Improvements?",
+      "answer": "EvoHome Improvements Ltd is a trusted home improvement company serving Hampshire and surrounding areas. We connect homeowners with vetted specialists and provide complete project oversight with 100% homeowner protection."
+    },
+    {
+      "question": "What services do you offer?",
+      "answer": "We offer comprehensive home improvement services including solar power, heat pumps, windows, insulation, roofing, driveways, kitchens, bathrooms, and property maintenance across Hampshire, Surrey, Sussex, Dorset, and Wiltshire."
+    },
+    {
+      "question": "How does EvoHome Improvements work?",
+      "answer": "We provide free consultations, source competitive quotes from vetted professionals, manage your project from start to finish, and provide ongoing aftercare. You get expert guidance and complete protection throughout."
+    },
+    {
+      "question": "Is your advice really free?",
+      "answer": "Yes, absolutely! Our initial consultations, expert advice, and quote comparisons are completely free with no obligation. We only succeed when you're happy with your project."
+    },
+    {
+      "question": "How do I get a quote?",
+      "answer": "Simply fill out our quote form, call us on 0333 004 0195, or email office@evohomeimprovements.co.uk. We'll arrange a free consultation and provide competitive quotes from vetted specialists in your area."
+    },
+    {
+      "question": "Do I have to commit after getting a quote?",
+      "answer": "No, there's no obligation whatsoever. Our quotes are free and you're under no pressure to proceed. We want you to make the right decision for your home and budget."
+    },
+    {
+      "question": "How do you vet your tradespeople?",
+      "answer": "Every professional undergoes rigorous vetting including insurance checks, qualification reviews, reference calls, and real-life project inspections. All representatives are DBS (CRB) checked for your safety and peace of mind."
+    },
+    {
+      "question": "What if I have an issue with the work done?",
+      "answer": "We provide 100% homeowner protection and stay involved throughout your project. If any issues arise, we handle resolution directly and ensure everything is put right. You're never left unsupported."
+    },
+    {
+      "question": "Do installations come with a warranty?",
+      "answer": "Yes, all installations come with manufacturer warranties plus our workmanship guarantees. We provide comprehensive aftercare support throughout the warranty period and beyond."
+    },
+    {
+      "question": "Do you cover my area?",
+      "answer": "We provide free home consultations across Hampshire, Surrey, Sussex, Dorset, and Wiltshire. We also offer remote consultations nationwide. Call us on 0333 004 0195 to discuss your specific location."
+    }
+  ],
+  "directorMessage": {
+    "text": "Dear Homeowner,\n\nLet's face it — the home improvement industry is broken in too many places.\n\nThe platforms that claim to \"check\" trades are failing. They've turned into auction sites, selling your job to the highest bidder without any real accountability. The result? Falling standards, frustrated homeowners, and too many people left out of pocket or disappointed with the work.\n\n**EvoHome Improvements was created to change that.**\n\nWe're not just another listing site — we're here to raise the standard across the UK by supporting quality installers and giving homeowners a smarter way to improve their homes. Our approach is built on trust, not transactions. We carefully vet every professional, offer real customer support, and give you clear, impartial advice so you can make confident decisions.\n\nIt's about matching the right person to the right project — and finding innovative ways to cut waste, save time, and unlock better value by securing exclusive deals with leading brands. That way, you don't just get any product — you get the best, without paying over the odds.\n\nEvoHome exists to protect homeowners, support skilled tradespeople, and restore pride to an industry that desperately needs it.\n\nThank you for considering us. If you're planning a project, we're here to make it easier, safer, and better from start to finish.\n\nSincerely,\nWilliam Bowry\nFounder & Director, EvoHome Improvements Ltd"
   },
-  "intro": {
-    "heading": "Who We Are",
-    "body": "EvoHome Improvements Ltd connects homeowners with vetted specialists and provides real project oversight from quote to completion.",
-    "images": []
-  },
-  "mission": {
-    "title": "Our Mission",
-    "points": [
-      "Protect homeowners with 100% support and oversight",
-      "Support skilled tradespeople and restore industry pride",
-      "Deliver honest, impartial advice without sales pressure"
+  "jsonLdSchema": {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "EvoHome Improvements Ltd",
+    "description": "The Smarter Way to Improve Your Home - Professional home improvements across Southern England",
+    "url": "https://evohomeimprovements.co.uk",
+    "telephone": "0333 004 0195",
+    "email": "office@evohomeimprovements.co.uk",
+    "address": {
+      "@type": "PostalAddress",
+      "addressCountry": "GB",
+      "addressRegion": "Hampshire"
+    },
+    "areaServed": [
+      "Hampshire",
+      "Surrey",
+      "Sussex",
+      "Dorset",
+      "Wiltshire"
     ],
-    "images": []
-  },
-  "facts": [
-    { "label": "Company Number", "value": "14881322" },
-    { "label": "Years of Experience", "value": "30+ years" },
-    { "label": "Google Rating", "value": "4.9/5" }
-  ],
-  "values": [
-    "Vetting & verification",
-    "Quality workmanship",
-    "Transparency & fairness",
-    "Customer-first support"
-  ],
-  "cta": {
-    "heading": "Get Started Today",
-    "primaryCta": { "label": "Request Free Quote", "href": "/request-quote" },
-    "secondaryCta": { "label": "Call: 0333 004 0195", "href": "tel:03330040195" },
-    "images": []
+    "serviceType": [
+      "Solar Power Installation",
+      "Heat Pump Installation",
+      "Window Installation",
+      "Roofing Services",
+      "Home Improvements"
+    ],
+    "foundingDate": "1990",
+    "legalName": "EvoHome Improvements Ltd",
+    "taxID": "14881322",
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.9",
+      "reviewCount": "200",
+      "bestRating": "5"
+    },
+    "founder": {
+      "@type": "Person",
+      "name": "William Bowry"
+    }
   }
 }
