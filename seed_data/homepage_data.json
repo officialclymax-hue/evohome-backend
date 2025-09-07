@@ -1,0 +1,284 @@
+{
+  "whyChooseEvoHome": [
+    {
+      "icon": "Eye",
+      "title": "Vetted & Verified Professionals",
+      "description": "Every installer is fully vetted through insurance checks, qualification reviews, reference calls, and real-life project inspections.",
+      "highlight": "Beyond online reviews"
+    },
+    {
+      "icon": "Target",
+      "title": "Complete Project Oversight",
+      "description": "We stay involved throughout your project. From quote to final walkthrough, our team provides guidance and tracks progress.",
+      "highlight": "Not just matchmaking"
+    },
+    {
+      "icon": "HeartHandshake",
+      "title": "Impartial Expert Advice",
+      "description": "Get honest, expert guidance without pressure or bias. We help you make informed decisions that are right for your home and budget.",
+      "highlight": "No sales pressure"
+    },
+    {
+      "icon": "UserCheck",
+      "title": "Real Support, Not Just a Platform",
+      "description": "Our real team supports you with personal help before, during, and after your project. You're never left unsupported.",
+      "highlight": "Human support"
+    },
+    {
+      "icon": "Shield",
+      "title": "100% Homeowner Protection",
+      "description": "Complete protection throughout with comprehensive guarantees, secure payments, and dispute resolution support.",
+      "highlight": "Total peace of mind"
+    },
+    {
+      "icon": "ShoppingCart",
+      "title": "Trusted Products & Solutions",
+      "description": "We work with proven product providers who meet strict standards for quality and performance. Only reliable, long-lasting solutions.",
+      "highlight": "Quality guaranteed"
+    }
+  ],
+  "realTestimonials": [
+    {
+      "name": "Dean Butler",
+      "date": "2025-04-09",
+      "rating": 5,
+      "text": "Excellent service very professional. So impressed I recommend EvoHome to my cousin, he was happy with the job they done. Great communication throughout the process.",
+      "service": "Solar Installation",
+      "verified": true,
+      "location": "Hampshire"
+    },
+    {
+      "name": "Michelle Comrie (MJ)",
+      "date": "2025-01-16",
+      "rating": 5,
+      "text": "I was unfortunate to have a wall vent incorrectly fitted causing a leak. EvoHome sorted it quickly and professionally with no fuss. Excellent customer service.",
+      "service": "Roofing Repair",
+      "verified": true,
+      "location": "Surrey"
+    },
+    {
+      "name": "Jamie Walsh",
+      "date": "2024-10-08",
+      "rating": 5,
+      "text": "I'm a retrofit assessor and recommend EvoHome Improvements highly. This type of service is much needed in the UK home improvement industry.",
+      "service": "Heat Pump Assessment",
+      "verified": true,
+      "location": "Sussex"
+    },
+    {
+      "name": "Tyler Heath",
+      "date": "2024-10-03",
+      "rating": 5,
+      "text": "This is excellent, all I have to do is focus on the standard of work, all of the marketing, sales, customer service and payments EvoHome handles.",
+      "service": "Trade Partner",
+      "verified": true,
+      "location": "Dorset"
+    }
+  ],
+  "evoHomeServices": [
+    {
+      "title": "EvoHome Improvements",
+      "description": "From initial planning and design through to sourcing multiple competitive quotes and coordinating vetted local trades, we provide a single, trusted point of contact—delivering quality craftsmanship on projects of any size.",
+      "cta": "EXPLORE OUR SERVICES",
+      "link": "/services",
+      "image": "https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg",
+      "icon": "Building"
+    },
+    {
+      "title": "EvoHome Maintenance",
+      "description": "From routine upkeep to urgent repairs, we handle all your property maintenance needs with a single, trusted point of contact—delivering reliable, high-quality service.",
+      "cta": "MAINTENANCE SERVICES",
+      "link": "/services/property-maintenance",
+      "image": "https://images.pexels.com/photos/5691654/pexels-photo-5691654.jpeg",
+      "icon": "Wrench"
+    },
+    {
+      "title": "EvoHome & Garden",
+      "description": "From essential home items to garden must-haves, we offer a carefully curated range of quality products—all in one place—to help you create and maintain your perfect living space.",
+      "cta": "GARDEN SERVICES",
+      "link": "/services",
+      "image": "https://images.pexels.com/photos/1396131/pexels-photo-1396131.jpeg",
+      "icon": "Trees"
+    }
+  ],
+  "processSteps": [
+    {
+      "step": "01",
+      "title": "Free Consultation",
+      "description": "Free remote or in-home consultation to understand your goals, budget, and requirements. Expert advisors provide honest, impartial guidance.",
+      "icon": "Target",
+      "time": "Within 24 hours"
+    },
+    {
+      "step": "02",
+      "title": "Design & Planning",
+      "description": "Working with you to design and plan every detail. From measurements to materials and layout, everything is tailored for perfect results.",
+      "icon": "FileText",
+      "time": "24-48 hours"
+    },
+    {
+      "step": "03",
+      "title": "Quote Comparison",
+      "description": "Source and compare up to 5 competitive quotes from vetted professionals. Exclusive deals and better pricing through our partnerships.",
+      "icon": "TrendingUp",
+      "time": "48-72 hours"
+    },
+    {
+      "step": "04",
+      "title": "Protected Installation",
+      "description": "Professional installation with full project oversight, quality checks, and 100% homeowner protection throughout.",
+      "icon": "Shield",
+      "time": "As scheduled"
+    }
+  ],
+  "interactiveFeatures": [
+    {
+      "icon": "Gift",
+      "title": "Instant Quote Calculator",
+      "description": "Get rough estimates instantly",
+      "action_id": "instantQuote"
+    },
+    {
+      "icon": "Timer",
+      "title": "24-Hour Response",
+      "description": "Guaranteed expert callback",
+      "action_id": "callUs"
+    },
+    {
+      "icon": "Sparkles",
+      "title": "Smart Matching",
+      "description": "AI-powered installer matching",
+      "action_id": "smartMatching"
+    }
+  ],
+  "projectGalleryPreview": [
+    {
+      "image": "https://images.pexels.com/photos/9875441/pexels-photo-9875441.jpeg",
+      "title": "Solar Installation",
+      "location": "Hampshire",
+      "type": "Renewable Energy"
+    },
+    {
+      "image": "https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg",
+      "title": "Window Replacement",
+      "location": "Surrey",
+      "type": "Energy Efficiency"
+    },
+    {
+      "image": "https://images.pexels.com/photos/1396134/pexels-photo-1396134.jpeg",
+      "title": "Block Paving Driveway",
+      "location": "Sussex",
+      "type": "Outdoor Improvement"
+    },
+    {
+      "image": "https://images.pexels.com/photos/1080721/pexels-photo-1080721.jpeg",
+      "title": "Kitchen Renovation",
+      "location": "Dorset",
+      "type": "Interior Design"
+    }
+  ],
+  "jsonLdSchema": {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "EvoHome Improvements Ltd",
+    "alternateName": "EvoHome",
+    "description": "The Smarter Way to Improve Your Home - Home Improvement in Hampshire and Surrounding Area",
+    "url": "https://evohomeimprovements.co.uk",
+    "logo": "https://evohomeimprovements.co.uk/8350661c-0317-4d61-939e-72d9dba47c95.JPG",
+    "image": "https://evohomeimprovements.co.uk/8350661c-0317-4d61-939e-72d9dba47c95.JPG",
+    "telephone": "0333 004 0195",
+    "email": "office@evohomeimprovements.co.uk",
+    "priceRange": "££",
+    "paymentAccepted": [
+      "Cash",
+      "Credit Card",
+      "Bank Transfer"
+    ],
+    "currenciesAccepted": "GBP",
+    "address": {
+      "@type": "PostalAddress",
+      "addressCountry": "GB",
+      "addressRegion": "Hampshire",
+      "addressLocality": "Southampton"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": "50.9097",
+      "longitude": "-1.4044"
+    },
+    "areaServed": [
+      "Hampshire",
+      "Surrey",
+      "Sussex",
+      "Dorset",
+      "Wiltshire"
+    ],
+    "serviceType": [
+      "Solar Power Installation",
+      "Air Source Heat Pump Installation",
+      "Ground Source Heat Pump Installation",
+      "Window Installation",
+      "Door Installation",
+      "Roofing Services",
+      "Insulation Services",
+      "Kitchen Installation",
+      "Bathroom Installation",
+      "Driveway Installation",
+      "Property Maintenance"
+    ],
+    "foundingDate": "1990",
+    "legalName": "EvoHome Improvements Ltd",
+    "taxID": "14881322",
+    "vatID": "GB123456789",
+    "hasOfferCatalog": {
+      "@type": "OfferCatalog",
+      "name": "Home Improvement Services",
+      "itemListElement": [
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Solar Power Installation"
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Heat Pump Installation"
+          }
+        }
+      ]
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.9",
+      "reviewCount": "200",
+      "bestRating": "5",
+      "worstRating": "1"
+    },
+    "review": [
+      {
+        "@type": "Review",
+        "author": {
+          "@type": "Person",
+          "name": "Dean Butler"
+        },
+        "reviewRating": {
+          "@type": "Rating",
+          "ratingValue": "5",
+          "bestRating": "5"
+        },
+        "reviewBody": "Excellent service very professional. So impressed I recommend EvoHome to my cousin, he was happy with the job they done."
+      }
+    ],
+    "openingHours": [
+      "Mo-Fr 08:00-18:00",
+      "Sa 09:00-16:00"
+    ],
+    "sameAs": [
+      "https://www.facebook.com/evohomeimprovements",
+      "https://www.instagram.com/evohomeimprovements"
+    ]
+  }
+}
