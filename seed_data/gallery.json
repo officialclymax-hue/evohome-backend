@@ -1,125 +1,86 @@
 [
   {
-    "title": "Modern Kitchen Renovation",
-    "category": "Kitchens",
-    "data": {
-      "images": [
-        "https://images.pexels.com/photos/534174/pexels-photo-534174.jpeg",
-        "https://images.pexels.com/photos/373548/pexels-photo-373548.jpeg"
-      ],
-      "description": "A full kitchen renovation with bespoke cabinets, marble worktops and LED lighting."
-    }
+    "id": 1,
+    "src": "https://images.pexels.com/photos/9875441/pexels-photo-9875441.jpeg",
+    "alt": "Solar panel installation on residential roof",
+    "category": "Solar Power",
+    "title": "Residential Solar Installation"
   },
   {
-    "title": "Luxury Bathroom Upgrade",
-    "category": "Bathrooms",
-    "data": {
-      "images": [
-        "https://images.pexels.com/photos/1571457/pexels-photo-1571457.jpeg",
-        "https://images.pexels.com/photos/1454804/pexels-photo-1454804.jpeg"
-      ],
-      "description": "Bathroom redesign featuring a walk-in shower, freestanding tub, and underfloor heating."
-    }
+    "id": 2,
+    "src": "https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg",
+    "alt": "Modern energy-efficient windows",
+    "category": "Windows",
+    "title": "Double Glazed Windows"
   },
   {
-    "title": "Resin Bound Driveway",
+    "id": 3,
+    "src": "https://images.pexels.com/photos/209296/pexels-photo-209296.jpeg",
+    "alt": "Professional roofing installation",
+    "category": "Roofing",
+    "title": "Tile Roof Replacement"
+  },
+  {
+    "id": 4,
+    "src": "https://images.pexels.com/photos/1396134/pexels-photo-1396134.jpeg",
+    "alt": "Block paving driveway",
     "category": "Driveways",
-    "data": {
-      "images": [
-        "https://images.pexels.com/photos/6813316/pexels-photo-6813316.jpeg"
-      ],
-      "description": "A resin-bound driveway with a durable, low-maintenance finish."
-    }
+    "title": "Block Paving Driveway"
   },
   {
-    "title": "Roof Replacement & Repairs",
-    "category": "Roofing",
-    "data": {
-      "images": [
-        "https://images.pexels.com/photos/3614087/pexels-photo-3614087.jpeg"
-      ],
-      "description": "Full roof replacement with modern tiles and high-quality waterproofing."
-    }
+    "id": 5,
+    "src": "https://images.pexels.com/photos/1080721/pexels-photo-1080721.jpeg",
+    "alt": "Modern kitchen renovation",
+    "category": "Kitchens",
+    "title": "Contemporary Kitchen Design"
   },
   {
-    "title": "Solar Panel Installation",
-    "category": "Renewable Energy",
-    "data": {
-      "images": [
-        "https://images.pexels.com/photos/9875441/pexels-photo-9875441.jpeg"
-      ],
-      "description": "High-efficiency solar panel array installed to reduce energy bills."
-    }
+    "id": 6,
+    "src": "https://images.pexels.com/photos/9875419/pexels-photo-9875419.jpeg",
+    "alt": "Air source heat pump installation",
+    "category": "Heat Pumps",
+    "title": "Air Source Heat Pump"
   },
   {
-    "title": "Energy-Efficient Windows",
-    "category": "Windows & Doors",
-    "data": {
-      "images": [
-        "https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg",
-        "https://images.pexels.com/photos/7553850/pexels-photo-7553850.jpeg"
-      ],
-      "description": "uPVC windows and composite doors for improved insulation and security."
-    }
+    "id": 7,
+    "src": "https://images.pexels.com/photos/1454804/pexels-photo-1454804.jpeg",
+    "alt": "Luxury bathroom renovation",
+    "category": "Bathrooms",
+    "title": "Luxury Bathroom Suite"
   },
   {
-    "title": "Garden Room Extension",
-    "category": "Garden & Outdoor",
-    "data": {
-      "images": [
-        "https://images.pexels.com/photos/1396131/pexels-photo-1396131.jpeg"
-      ],
-      "description": "A contemporary garden room with timber decking and insulated panels."
-    }
-  },
-  {
-    "title": "Interior Flooring & Tiling",
-    "category": "Interiors & Trades",
-    "data": {
-      "images": [
-        "https://images.pexels.com/photos/534151/pexels-photo-534151.jpeg"
-      ],
-      "description": "Luxury vinyl tile flooring installed for a modern living space."
-    }
-  },
-  {
-    "title": "Loft Insulation Upgrade",
+    "id": 8,
+    "src": "https://images.pexels.com/photos/5691659/pexels-photo-5691659.jpeg",
+    "alt": "Loft insulation installation",
     "category": "Insulation",
-    "data": {
-      "images": [
-        "https://images.pexels.com/photos/5806941/pexels-photo-5806941.jpeg"
-      ],
-      "description": "Cavity wall and loft insulation to improve energy efficiency."
-    }
+    "title": "Loft Insulation Project"
   },
   {
-    "title": "Patio & Landscaping",
-    "category": "Garden & Outdoor",
-    "data": {
-      "images": [
-        "https://images.pexels.com/photos/5793666/pexels-photo-5793666.jpeg"
-      ],
-      "description": "Patio paving and landscaping to create a beautiful outdoor living area."
-    }
+    "id": 9,
+    "src": "https://images.pexels.com/photos/1396133/pexels-photo-1396133.jpeg",
+    "alt": "Garden decking installation",
+    "category": "Decking",
+    "title": "Composite Decking"
   },
   {
-    "title": "Composite Decking",
-    "category": "Garden & Outdoor",
-    "data": {
-      "images": [
-        "https://images.pexels.com/photos/1396131/pexels-photo-1396131.jpeg"
-      ],
-      "description": "Maintenance-free composite decking with LED lighting."
-    }
+    "id": 10,
+    "src": "https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg",
+    "alt": "External wall cladding",
+    "category": "Cladding",
+    "title": "Modern External Cladding"
   },
   {
-    "title": "Chimney & Leadwork Repairs",
-    "category": "Roofing",
-    "data": {
-      "images": [
-        "https://images.pexels.com/photos/358886/pexels-photo-358886.jpeg"
-      ],
-      "description": "Specialist chimney restoration and leadwork repairs for a heritage property."
-    }
+    "id": 11,
+    "src": "https://images.pexels.com/photos/1396132/pexels-photo-1396132.jpeg",
+    "alt": "Glass conservatory extension",
+    "category": "Conservatories",
+    "title": "Victorian Style Conservatory"
+  },
+  {
+    "id": 12,
+    "src": "https://images.pexels.com/photos/186077/pexels-photo-186077.jpeg",
+    "alt": "White uPVC roofline",
+    "category": "Roofline",
+    "title": "uPVC Fascias and Soffits"
   }
 ]
