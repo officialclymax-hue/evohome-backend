@@ -1,0 +1,124 @@
+generator client { provider = "prisma-client-js" }
+datasource db { provider = "postgresql"; url = env("DATABASE_URL") }
+
+enum ServiceCategory { renewable improvements maintenance garden health }
+
+model Service {
+  id                     String   @id @default(cuid())
+  name                   String
+  slug                   String   @unique
+  category               ServiceCategory
+  description            String
+  longDescription        String
+  benefits               String[]
+  image                  String
+  featured               Boolean  @default(false)
+  averageSavings         String?
+  installTime            String?
+  warranty               String?
+  whatIsIt               String?
+  howItWorksSteps        Json?
+  comparisonTable        Json?
+  whyChooseContent       String?
+  howEvoHomeHelpsContent String?
+  relatedArticles        Json?
+  externalResources      Json?
+  faqs                   Json?
+  serviceTypes           Json?
+  materials              Json?
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+}
+
+model County {
+  id          String  @id @default(cuid())
+  name        String
+  slug        String  @unique
+  description String
+  isPrimary   Boolean @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model BlogPost {
+  id        String   @id @default(cuid())
+  title     String
+  slug      String   @unique
+  excerpt   String
+  date      DateTime
+  author    String
+  image     String
+  category  String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model GalleryImage {
+  id        String   @id @default(cuid())
+  src       String
+  alt       String
+  category  String
+  title     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Testimonial {
+  id        String   @id @default(cuid())
+  name      String
+  date      DateTime
+  rating    Int
+  text      String
+  service   String
+  verified  Boolean  @default(false)
+  location  String?
+  savings   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CompanyInfo {
+  id               String  @id
+  name             String
+  alternateName    String?
+  description      String
+  url              String
+  logo             String
+  image            String
+  telephone        String
+  email            String
+  priceRange       String?
+  paymentAccepted  String[]
+  currenciesAccepted String?
+  address          Json
+  geo              Json?
+  areaServed       String[]
+  serviceType      String[]
+  foundingDate     String
+  legalName        String
+  taxID            String?
+  vatID            String?
+  openingHours     String[]
+  socialMediaLinks String[]
+  aggregateRating  Json?
+  review           Json?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model FormSubmission {
+  id               String   @id @default(cuid())
+  firstName        String
+  lastName         String
+  email            String
+  phone            String
+  postcode         String
+  streetAddress    String
+  service          String
+  message          String?
+  marketingConsent Boolean  @default(false)
+  dataConsent      Boolean
+  submissionDate   DateTime @default(now())
+  createdAt        DateTime @default(now())
+}
