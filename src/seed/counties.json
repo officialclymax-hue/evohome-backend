@@ -1,0 +1,7 @@
+[
+  { "name": "Hampshire", "slug": "hampshire", "description": "Hampshire county", "isPrimary": true },
+  { "name": "Surrey", "slug": "surrey", "description": "Surrey county", "isPrimary": true },
+  { "name": "Sussex", "slug": "sussex", "description": "Sussex county", "isPrimary": true },
+  { "name": "Dorset", "slug": "dorset", "description": "Dorset county", "isPrimary": true },
+  { "name": "Wiltshire", "slug": "wiltshire", "description": "Wiltshire county", "isPrimary": true }
+]
