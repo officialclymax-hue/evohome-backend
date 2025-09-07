@@ -1,73 +1,37 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8"/>
-  <title>EvoHome Admin</title>
-  <link rel="stylesheet" href="/admin/styles.css"/>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EvoHome Admin Dashboard</title>
+    <link rel="stylesheet" href="/admin/styles.css">
 </head>
 <body>
-  <div id="wrap">
-    <h1>EvoHome Admin</h1>
+    <div class="container">
+        <h1>EvoHome Admin Dashboard</h1>
+        <p>Welcome to your content management interface. Below you can view the data currently served by your backend API.</p>
+        <p class="note">
+            <strong>Note:</strong> This is a view-only dashboard. To enable editing, a more complex frontend application (e.g., React, Vue, or a dedicated admin framework) would need to be built here, interacting with additional API endpoints for Create, Update, and Delete operations.
+        </p>
 
-    <!-- Login -->
-    <div id="auth">
-      <input id="email" placeholder="email" value="office@evohomeimprovements.co.uk"/>
-      <input id="password" type="password" placeholder="password"/>
-      <button id="btnLogin">Login</button>
-      <div id="msg"></div>
+        <div id="data-sections">
+            <h2>Available Data Sections</h2>
+            <ul>
+                <li><a href="#" data-api="/api/services">Services</a></li>
+                <li><a href="#" data-api="/api/counties">Counties</a></li>
+                <li><a href="#" data-api="/api/blog-posts">Blog Posts</a></li>
+                <li><a href="#" data-api="/api/homepage-data">Homepage Data</a></li>
+                <li><a href="#" data-api="/api/about-page-data">About Page Data</a></li>
+                <li><a href="#" data-api="/api/gallery-images">Gallery Images</a></li>
+            </ul>
+        </div>
+
+        <div id="data-display">
+            <h2>Selected Data</h2>
+            <pre id="json-output"></pre>
+        </div>
     </div>
 
-    <!-- Main -->
-    <div id="main" style="display:none;">
-      <div class="topbar">
-        <div class="tabs">
-          <button id="tabEasy" class="tab active">Easy mode</button>
-          <button id="tabJSON" class="tab">JSON mode</button>
-        </div>
-        <button id="btnSeed">Seed</button>
-        <button id="btnLogout">Logout</button>
-      </div>
-
-      <div class="cols">
-        <div class="col left">
-          <h3>Page Content</h3>
-          <ul id="contentList"></ul>
-
-          <h3>Data Collections</h3>
-          <ul id="dataList"></ul>
-
-          <button id="btnRefresh">Refresh list</button>
-        </div>
-
-        <div class="col right">
-          <div class="panelHeader">
-            <h3 id="panelTitle">Select an item</h3>
-            <div id="actions">
-              <button id="btnSave">Save</button>
-              <button id="btnExport">Export</button>
-              <button id="btnImport">Import</button>
-              <input type="file" id="importFile" style="display:none" accept="application/json"/>
-            </div>
-          </div>
-
-          <!-- EASY MODE -->
-          <div id="easyPanel" class="panel">
-            <div id="easyForm"><em>Pick a section from the left.</em></div>
-          </div>
-
-          <!-- JSON MODE -->
-          <div id="jsonPanel" class="panel" style="display:none;">
-            <textarea id="editor" rows="26" spellcheck="false"></textarea>
-            <div class="actions">
-              <button id="btnFormat">Format JSON</button>
-            </div>
-          </div>
-
-          <input type="file" id="fileUpload" style="display:none" />
-        </div>
-      </div>
-    </div>
-  </div>
-  <script src="/admin/app.js"></script>
+    <script src="/admin/app.js"></script>
 </body>
 </html>
